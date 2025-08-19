@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task & Notes Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tasks"></i> Task & Notes Dashboard</h1>
+            <p>Manage your tasks and notes with MCP integration</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Tasks Section -->
+            <section class="tasks-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-list-check"></i> Tasks</h2>
+                    <button id="add-task-btn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
+                
+                <div class="task-input-container" id="task-input-container" style="display: none;">
+                    <div class="input-group">
+                        <input type="text" id="task-input" placeholder="Enter task description..." maxlength="500">
+                        <div class="input-actions">
+                            <button id="save-task-btn" class="btn btn-success">
+                                <i class="fas fa-check"></i> Save
+                            </button>
+                            <button id="cancel-task-btn" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tasks-container" id="tasks-container">
+                    <div class="loading">Loading tasks...</div>
+                </div>
+            </section>
+
+            <!-- Notes Section -->
+            <section class="notes-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-sticky-note"></i> Notes</h2>
+                    <div class="notes-actions">
+                        <div class="search-container">
+                            <input type="text" id="notes-search" placeholder="Search notes...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <button id="add-note-btn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Note
+                        </button>
+                    </div>
+                </div>
+
+                <div class="note-input-container" id="note-input-container" style="display: none;">
+                    <div class="input-group">
+                        <textarea id="note-input" placeholder="Enter note content (Markdown supported)..." rows="6"></textarea>
+                        <div class="input-actions">
+                            <button id="save-note-btn" class="btn btn-success">
+                                <i class="fas fa-check"></i> Save
+                            </button>
+                            <button id="cancel-note-btn" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes-container" id="notes-container">
+                    <div class="loading">Loading notes...</div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Edit Note Modal -->
+    <div id="edit-note-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Note</h3>
+                <button class="modal-close" id="close-edit-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <textarea id="edit-note-content" rows="10"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="update-note-btn" class="btn btn-success">
+                    <i class="fas fa-save"></i> Update
+                </button>
+                <button id="cancel-edit-btn" class="btn btn-secondary">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

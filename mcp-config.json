@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "task-notes": {
+      "command": "node",
+      "args": ["dist/index.js", "--mcp"],
+      "cwd": ".",
+      "env": {
+        "NODE_ENV": "mcp"
+      }
+    }
+  }
+}
