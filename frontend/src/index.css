@@ -1242,20 +1242,24 @@ body {
   font-style: italic;
 }
 
-.markdown-content table {
+.markdown-content table,
+.markdown-table {
   border-collapse: collapse;
   width: 100%;
   margin: 16px 0;
 }
 
 .markdown-content th,
-.markdown-content td {
+.markdown-content td,
+.markdown-table th,
+.markdown-table td {
   border: 1px solid var(--border);
   padding: 8px 12px;
   text-align: left;
 }
 
-.markdown-content th {
+.markdown-content th,
+.markdown-table th {
   background: var(--bg-secondary);
   font-weight: 600;
 }

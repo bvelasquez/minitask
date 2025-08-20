@@ -40,12 +40,21 @@ export const TaskList: React.FC<TaskListProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [showCompleted, setShowCompleted] = useState(true);
 
-  // Filter tasks based on search query and completion status
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch = task.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCompletionFilter = showCompleted || !task.completed;
-    return matchesSearch && matchesCompletionFilter;
-  });
+  // Filter and sort tasks based on search query and completion status
+  const filteredTasks = tasks
+    .filter((task) => {
+      const matchesSearch = task.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCompletionFilter = showCompleted || !task.completed;
+      return matchesSearch && matchesCompletionFilter;
+    })
+    .sort((a, b) => {
+      // Sort completed tasks to the bottom
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1;
+      }
+      // For tasks with the same completion status, maintain original order
+      return a.order_index - b.order_index;
+    });
 
   const completedCount = tasks.filter(task => task.completed).length;
   const totalCount = tasks.length;
