@@ -20,7 +20,7 @@ async function main() {
     
     try {
       await webServer.start();
-      console.error('Web dashboard available at: http://localhost:3000/dashboard');
+      console.error('Web dashboard available at: http://localhost:3000');
       
       // Now create MCP server that will use the web server's API
       const mcpServer = new TaskNotesMCPServer('http://localhost:3000/api');
@@ -28,10 +28,10 @@ async function main() {
       // Optionally auto-open dashboard (can be disabled with --no-browser flag)
       if (!args.includes('--no-browser')) {
         try {
-          await open('http://localhost:3000/dashboard');
+          await open('http://localhost:3000');
           console.error('Dashboard opened in your default browser');
         } catch (error) {
-          console.error('Could not auto-open browser. Please visit: http://localhost:3000/dashboard');
+          console.error('Could not auto-open browser. Please visit: http://localhost:3000');
         }
       }
       
@@ -60,10 +60,10 @@ async function main() {
     
     // Auto-open dashboard in browser
     try {
-      await open('http://localhost:3000/dashboard');
+      await open('http://localhost:3000');
       console.log('Dashboard opened in your default browser');
     } catch (error) {
-      console.log('Could not auto-open browser. Please visit: http://localhost:3000/dashboard');
+      console.log('Could not auto-open browser. Please visit: http://localhost:3000');
     }
     
     console.log('\nTo use as MCP server, run with --mcp flag or set NODE_ENV=mcp');

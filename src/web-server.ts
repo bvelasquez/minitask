@@ -378,16 +378,15 @@ export class WebServer {
       }
     });
 
-    // Serve the main dashboard
-    this.app.get('/dashboard', (req, res) => {
-      console.log('[DEBUG] GET /dashboard - Serving dashboard');
+    // Serve React app for all non-API routes (SPA fallback)
+    this.app.get('*', (req, res) => {
+      // Skip API routes
+      if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API endpoint not found' });
+      }
+      
+      console.log(`[DEBUG] GET ${req.path} - Serving React app`);
       res.sendFile(path.join(__dirname, '../public/index.html'));
-    });
-
-    // Default route redirects to dashboard
-    this.app.get('/', (req, res) => {
-      console.log('[DEBUG] GET / - Redirecting to dashboard');
-      res.redirect('/dashboard');
     });
 
     // Global error handler
@@ -419,7 +418,7 @@ export class WebServer {
   start(): Promise<void> {
     return new Promise((resolve) => {
       this.server.listen(this.port, () => {
-        console.log(`Dashboard available at: http://localhost:${this.port}/dashboard`);
+        console.log(`Dashboard available at: http://localhost:${this.port}`);
         resolve();
       });
     });

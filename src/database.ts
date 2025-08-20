@@ -92,8 +92,14 @@ export class Database {
 
   // Task methods
   async getTasks(): Promise<Task[]> {
-    const all = promisify(this.db.all.bind(this.db)) as (sql: string) => Promise<Task[]>;
-    return await all('SELECT * FROM tasks ORDER BY order_index ASC, created_at ASC');
+    const all = promisify(this.db.all.bind(this.db)) as (sql: string) => Promise<any[]>;
+    const rows = await all('SELECT * FROM tasks ORDER BY order_index ASC, created_at ASC');
+    
+    // Convert SQLite integer boolean to actual boolean
+    return rows.map(row => ({
+      ...row,
+      completed: Boolean(row.completed)
+    }));
   }
 
   async addTask(description: string, orderIndex?: number): Promise<Task> {
@@ -128,6 +134,11 @@ export class Database {
       
       const newTask = await get('SELECT * FROM tasks WHERE id = ?', [result.lastID]);
       console.log(`[DEBUG] Database.addTask - Created task:`, newTask);
+      
+      // Convert SQLite integer boolean to actual boolean
+      if (newTask) {
+        newTask.completed = Boolean(newTask.completed);
+      }
       
       return newTask;
     } catch (error) {
@@ -171,6 +182,11 @@ export class Database {
       
       const updatedTask = await get('SELECT * FROM tasks WHERE id = ?', [id]);
       console.log(`[DEBUG] Database.updateTask - Updated task:`, updatedTask);
+      
+      if (updatedTask) {
+        // Convert SQLite integer boolean to actual boolean
+        updatedTask.completed = Boolean(updatedTask.completed);
+      }
       
       return updatedTask || null;
     } catch (error) {
