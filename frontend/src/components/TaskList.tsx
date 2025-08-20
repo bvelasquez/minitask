@@ -17,7 +17,7 @@ import {
 import { Plus, CheckSquare, ClipboardList } from 'lucide-react';
 import { Task } from '../types';
 import { TaskItem } from './TaskItemFixed';
-import { TaskItemTest } from './TaskItemTest';
+
 
 interface TaskListProps {
   tasks: Task[];
@@ -66,7 +66,8 @@ export const TaskList: React.FC<TaskListProps> = ({
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       handleAddTask();
     } else if (e.key === 'Escape') {
       setShowInput(false);
@@ -92,14 +93,14 @@ export const TaskList: React.FC<TaskListProps> = ({
 
       {showInput && (
         <div className="input-group fade-in">
-          <input
-            type="text"
-            className="input"
-            placeholder="Enter task description..."
+          <textarea
+            className="input task-textarea"
+            placeholder="Enter task description... (Shift+Enter for new line, Enter to save)"
             value={newTaskDescription}
             onChange={(e) => setNewTaskDescription(e.target.value)}
             onKeyDown={handleKeyPress}
             autoFocus
+            rows={3}
           />
           <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
             <button className="btn btn-primary btn-small" onClick={handleAddTask}>

@@ -5,6 +5,10 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 export class TaskNotesMCPServer {
   private server: Server;
@@ -207,6 +211,14 @@ export class TaskNotesMCPServer {
               required: ['query'],
             },
           },
+          {
+            name: 'restart_server',
+            description: 'Restart the PM2-managed web server. Use this when you need to restart the server after making changes to the code or configuration. This will restart the persistent web server that continues running even after the LLM session ends.',
+            inputSchema: {
+              type: 'object',
+              properties: {},
+            },
+          },
         ] as Tool[],
       };
     });
@@ -403,6 +415,51 @@ export class TaskNotesMCPServer {
                 },
               ],
             };
+          }
+
+          case 'restart_server': {
+            try {
+              console.error('Restarting PM2 web server...');
+              await execAsync('pm2 restart task-notes-server');
+              
+              // Wait a moment for the server to restart
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              
+              // Verify it restarted successfully
+              const { stdout } = await execAsync('pm2 jlist');
+              const processes = JSON.parse(stdout);
+              const taskNotesApp = processes.find((p: any) => p.name === 'task-notes-server');
+              
+              if (taskNotesApp && taskNotesApp.pm2_env.status === 'online') {
+                return {
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Web server restarted successfully via PM2. The server is now online and ready to handle requests.',
+                    },
+                  ],
+                };
+              } else {
+                return {
+                  content: [
+                    {
+                      type: 'text',
+                      text: 'Server restart command executed, but server status is unclear. Check PM2 status manually if needed.',
+                    },
+                  ],
+                };
+              }
+            } catch (error) {
+              return {
+                content: [
+                  {
+                    type: 'text',
+                    text: `Failed to restart server: ${error instanceof Error ? error.message : String(error)}`,
+                  },
+                ],
+                isError: true,
+              };
+            }
           }
 
           default:

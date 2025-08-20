@@ -13,7 +13,13 @@
     "dev:frontend": "cd frontend && npm run dev",
     "clean": "rm -rf dist && cd frontend && rm -rf dist",
     "install:frontend": "cd frontend && npm install",
-    "postinstall": "npm run install:frontend"
+    "postinstall": "npm run install:frontend",
+    "server:start": "pm2 start ecosystem.config.cjs",
+    "server:stop": "pm2 stop task-notes-server",
+    "server:restart": "pm2 restart task-notes-server",
+    "server:status": "pm2 status task-notes-server",
+    "server:logs": "pm2 logs task-notes-server",
+    "server:delete": "pm2 delete task-notes-server"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.5.0",

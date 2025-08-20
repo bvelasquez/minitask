@@ -12,7 +12,7 @@ A modern MCP (Model Context Protocol) server for task and notes management with 
 
 ### Web Dashboard
 - **Clean Interface**: Modern, responsive design
-- **Task Features**: Checkbox completion, drag-and-drop reordering, creation dates
+- **Task Features**: Checkbox completion, drag-and-drop reordering, multi-line support, clickable links, creation dates
 - **Notes Features**: Markdown rendering, search functionality, edit modal
 - **Auto-Launch**: Dashboard opens automatically when server starts
 
@@ -90,6 +90,9 @@ Add this server to your MCP client configuration (e.g., `mcp-config.json`):
 - `delete_note` - Remove a note permanently
 - `search_notes` - Find notes containing specific text
 
+#### Server Management
+- `restart_server` - Restart the PM2-managed web server (useful after code changes)
+
 ## Database Schema
 
 ### Tasks Table
@@ -143,6 +146,25 @@ The web server exposes REST API endpoints that mirror the MCP tools:
 - `PUT /api/notes/:id` - Update note
 - `DELETE /api/notes/:id` - Delete note
 - `GET /api/notes/search?q=query` - Search notes
+
+## Multi-line Task Support
+
+Tasks now support multiple lines of text for better organization:
+
+### In the Web Dashboard
+- **Creating Tasks**: Use `Shift+Enter` to add new lines, `Enter` to save
+- **Editing Tasks**: Click edit button, use `Shift+Enter` for new lines, `Enter` to save
+- **Display**: Multi-line tasks are displayed with proper line breaks
+- **Clickable Links**: URLs (http, https, www) are automatically converted to clickable links that open in new tabs
+
+### Via MCP/LLM
+Multi-line tasks work seamlessly through the MCP interface:
+```
+"Add a task with multiple steps:
+- Step 1: Research options
+- Step 2: Compare prices  
+- Step 3: Make decision"
+```
 
 ## Example LLM Interactions
 

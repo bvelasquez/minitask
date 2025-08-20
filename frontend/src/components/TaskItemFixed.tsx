@@ -14,7 +14,34 @@ interface TaskItemProps {
 export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onUpdateDescription }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(task.description);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Function to convert URLs in text to clickable links
+  const renderTextWithLinks = (text: string) => {
+    // URL regex pattern that matches http, https, and www URLs
+    const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    
+    return parts.map((part, index) => {
+      if (part.match(urlRegex)) {
+        // Ensure the URL has a protocol
+        const url = part.startsWith('www.') ? `https://${part}` : part;
+        return (
+          <a
+            key={index}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="task-link"
+            onClick={(e) => e.stopPropagation()} // Prevent drag when clicking links
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
 
   const {
     attributes,
@@ -79,7 +106,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSaveEdit();
     } else if (e.key === 'Escape') {
@@ -124,22 +151,27 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
         <div className="task-content">
           {isEditing ? (
             <div className="task-edit-container">
-              <input
+              <textarea
                 ref={inputRef}
-                type="text"
-                className="task-edit-input"
+                className="task-edit-input task-textarea"
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onClick={handleInputClick}
                 onBlur={handleSaveEdit}
+                rows={Math.max(2, editValue.split('\n').length)}
               />
             </div>
           ) : (
             <div 
               className={`task-description ${task.completed ? 'completed' : ''}`}
             >
-              {task.description}
+              {task.description.split('\n').map((line, index) => (
+                <React.Fragment key={index}>
+                  {renderTextWithLinks(line)}
+                  {index < task.description.split('\n').length - 1 && <br />}
+                </React.Fragment>
+              ))}
             </div>
           )}
           <div className="task-meta">
