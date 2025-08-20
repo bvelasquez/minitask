@@ -596,6 +596,22 @@ body {
   color: var(--text-secondary);
 }
 
+.note-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.note-content a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.note-content a:visited {
+  color: var(--accent);
+}
+
 /* Empty states */
 .empty-state {
   text-align: center;
