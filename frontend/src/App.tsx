@@ -6,6 +6,8 @@ import { useSocket } from './hooks/useSocket';
 import { useTheme } from './hooks/useTheme';
 import { TaskList } from './components/TaskList';
 import { NoteList } from './components/NoteList';
+import { NoteFullView } from './components/NoteFullView';
+import { Instructions } from './components/Instructions';
 
 type TabType = 'tasks' | 'notes';
 
@@ -16,6 +18,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('tasks');
+  const [expandedNote, setExpandedNote] = useState<Note | null>(null);
 
   const { theme, toggleTheme } = useTheme();
 
@@ -139,6 +142,10 @@ function App() {
   const handleUpdateNote = async (id: number, content: string) => {
     try {
       await apiService.updateNote(id, content);
+      // Update the expanded note state to reflect changes
+      if (expandedNote && expandedNote.id === id) {
+        setExpandedNote({ ...expandedNote, content });
+      }
       // WebSocket will handle the update
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update note');
@@ -148,6 +155,10 @@ function App() {
   const handleDeleteNote = async (id: number) => {
     try {
       await apiService.deleteNote(id);
+      // Close expanded view if this note is being deleted
+      if (expandedNote && expandedNote.id === id) {
+        setExpandedNote(null);
+      }
       // WebSocket will handle the update
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete note');
@@ -165,6 +176,10 @@ function App() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to search notes');
     }
+  };
+
+  const handleExpandNote = (note: Note) => {
+    setExpandedNote(note);
   };
 
   if (loading) {
@@ -249,10 +264,22 @@ function App() {
               onUpdateNote={handleUpdateNote}
               onDeleteNote={handleDeleteNote}
               onSearchNotes={handleSearchNotes}
+              onExpandNote={handleExpandNote}
             />
           )}
         </div>
       </div>
+
+      {expandedNote && (
+        <NoteFullView
+          note={expandedNote}
+          onClose={() => setExpandedNote(null)}
+          onUpdate={handleUpdateNote}
+          onDelete={handleDeleteNote}
+        />
+      )}
+
+      <Instructions />
     </div>
   );
 }

@@ -1,31 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { Edit, Trash2 } from 'lucide-react';
+import React from 'react';
+import { Edit, Trash2, Maximize2 } from 'lucide-react';
 import { Note } from '../types';
-import { apiService } from '../services/api';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface NoteItemProps {
   note: Note;
   onEdit: (note: Note) => void;
   onDelete: (id: number) => void;
+  onExpand: (note: Note) => void;
 }
 
-export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete }) => {
-  const [renderedContent, setRenderedContent] = useState('');
+export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete, onExpand }) => {
+  const createPreview = (content: string): string => {
+    const maxLength = 200;
+    if (content.length <= maxLength) {
+      return content;
+    }
+    
+    // Try to break at a sentence or paragraph
+    const truncated = content.substring(0, maxLength);
+    const lastSentence = Math.max(
+      truncated.lastIndexOf('.'),
+      truncated.lastIndexOf('!'),
+      truncated.lastIndexOf('?'),
+      truncated.lastIndexOf('\n\n')
+    );
+    
+    if (lastSentence > maxLength * 0.6) {
+      return content.substring(0, lastSentence + 1);
+    }
+    
+    // Fall back to word boundary
+    const lastSpace = truncated.lastIndexOf(' ');
+    if (lastSpace > maxLength * 0.6) {
+      return content.substring(0, lastSpace) + '...';
+    }
+    
+    return truncated + '...';
+  };
 
-  useEffect(() => {
-    const renderContent = async () => {
-      try {
-        const html = await apiService.renderMarkdown(note.content);
-        setRenderedContent(html);
-      } catch (error) {
-        console.error('Failed to render markdown:', error);
-        // Fallback to plain text
-        setRenderedContent(escapeHtml(note.content));
-      }
-    };
-
-    renderContent();
-  }, [note.content]);
+  const isLongNote = note.content.length > 200;
+  const displayContent = isLongNote ? createPreview(note.content) : note.content;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -33,12 +48,6 @@ export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete }) =>
       hour: '2-digit', 
       minute: '2-digit' 
     });
-  };
-
-  const escapeHtml = (text: string) => {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   };
 
   const handleDelete = () => {
@@ -54,6 +63,15 @@ export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete }) =>
           {formatDate(note.created_at)}
         </div>
         <div className="note-actions">
+          {isLongNote && (
+            <button
+              className="btn btn-secondary btn-small btn-icon"
+              onClick={() => onExpand(note)}
+              title="View full note"
+            >
+              <Maximize2 size={14} />
+            </button>
+          )}
           <button
             className="btn btn-primary btn-small btn-icon"
             onClick={() => onEdit(note)}
@@ -71,9 +89,16 @@ export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete }) =>
         </div>
       </div>
       <div 
-        className="note-content"
-        dangerouslySetInnerHTML={{ __html: renderedContent }}
-      />
+        className={`note-content ${isLongNote ? 'note-content-preview' : ''}`}
+        onClick={isLongNote ? () => onExpand(note) : undefined}
+      >
+        <MarkdownRenderer content={displayContent} />
+      </div>
+      {isLongNote && (
+        <div className="note-expand-hint">
+          Click to view full note...
+        </div>
+      )}
     </div>
   );
 };
