@@ -14,9 +14,10 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Plus, CheckSquare, ClipboardList } from 'lucide-react';
+import { Plus, CheckSquare, ClipboardList, Eye, EyeOff } from 'lucide-react';
 import { Task } from '../types';
 import { TaskItem } from './TaskItemFixed';
+import { SearchInput } from './SearchInput';
 
 
 interface TaskListProps {
@@ -36,6 +37,18 @@ export const TaskList: React.FC<TaskListProps> = ({
 }) => {
   const [showInput, setShowInput] = useState(false);
   const [newTaskDescription, setNewTaskDescription] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showCompleted, setShowCompleted] = useState(true);
+
+  // Filter tasks based on search query and completion status
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch = task.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCompletionFilter = showCompleted || !task.completed;
+    return matchesSearch && matchesCompletionFilter;
+  });
+
+  const completedCount = tasks.filter(task => task.completed).length;
+  const totalCount = tasks.length;
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -48,10 +61,10 @@ export const TaskList: React.FC<TaskListProps> = ({
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
-      const oldIndex = tasks.findIndex((task) => task.id === active.id);
-      const newIndex = tasks.findIndex((task) => task.id === over.id);
+      const oldIndex = filteredTasks.findIndex((task) => task.id === active.id);
+      const newIndex = filteredTasks.findIndex((task) => task.id === over.id);
 
-      const reorderedTasks = arrayMove(tasks, oldIndex, newIndex);
+      const reorderedTasks = arrayMove(filteredTasks, oldIndex, newIndex);
       const taskIds = reorderedTasks.map((task) => task.id);
       onReorderTasks(taskIds);
     }
@@ -80,16 +93,32 @@ export const TaskList: React.FC<TaskListProps> = ({
       <div className="section-header">
         <h2 className="section-title">
           <CheckSquare size={20} />
-          Tasks
+          Tasks ({totalCount - completedCount}/{totalCount})
         </h2>
-        <button
-          className="btn btn-primary btn-small"
-          onClick={() => setShowInput(true)}
-        >
-          <Plus size={16} />
-          Add Task
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            className={`btn btn-small ${showCompleted ? 'btn-secondary' : 'btn-primary'}`}
+            onClick={() => setShowCompleted(!showCompleted)}
+            title={showCompleted ? 'Hide completed tasks' : 'Show completed tasks'}
+          >
+            {showCompleted ? <EyeOff size={16} /> : <Eye size={16} />}
+            {showCompleted ? 'Hide' : 'Show'} Completed
+          </button>
+          <button
+            className="btn btn-primary btn-small"
+            onClick={() => setShowInput(true)}
+          >
+            <Plus size={16} />
+            Add Task
+          </button>
+        </div>
       </div>
+
+      <SearchInput
+        value={searchQuery}
+        onChange={setSearchQuery}
+        placeholder="Search tasks..."
+      />
 
       {showInput && (
         <div className="input-group fade-in">
@@ -124,14 +153,31 @@ export const TaskList: React.FC<TaskListProps> = ({
           <ClipboardList size={48} />
           <p>No tasks yet. Add your first task to get started!</p>
         </div>
+      ) : filteredTasks.length === 0 ? (
+        <div className="empty-state">
+          <ClipboardList size={48} />
+          <p>
+            {searchQuery 
+              ? `No tasks found matching "${searchQuery}"` 
+              : 'No active tasks. All tasks are completed!'}
+          </p>
+          {searchQuery && (
+            <button 
+              className="btn btn-secondary btn-small"
+              onClick={() => setSearchQuery('')}
+            >
+              Clear search
+            </button>
+          )}
+        </div>
       ) : (
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
-            {tasks.map((task) => (
+          <SortableContext items={filteredTasks} strategy={verticalListSortingStrategy}>
+            {filteredTasks.map((task) => (
               <TaskItem
                 key={task.id}
                 task={task}

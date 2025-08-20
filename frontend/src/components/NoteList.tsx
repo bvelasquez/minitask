@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Plus, StickyNote, Search } from 'lucide-react';
+import { Plus, StickyNote } from 'lucide-react';
 import { Note } from '../types';
 import { NoteItem } from './NoteItem';
 import { NoteModal } from './NoteModal';
+import { SearchInput } from './SearchInput';
 
 interface NoteListProps {
   notes: Note[];
@@ -64,28 +65,11 @@ export const NoteList: React.FC<NoteListProps> = ({
         </button>
       </div>
 
-      <div className="search-input">
-        <div style={{ position: 'relative' }}>
-          <Search 
-            size={16} 
-            style={{ 
-              position: 'absolute', 
-              left: '12px', 
-              top: '50%', 
-              transform: 'translateY(-50%)',
-              color: 'var(--text-muted)'
-            }} 
-          />
-          <input
-            type="text"
-            className="input"
-            placeholder="Search notes..."
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            style={{ paddingLeft: '40px' }}
-          />
-        </div>
-      </div>
+      <SearchInput
+        value={searchQuery}
+        onChange={handleSearchChange}
+        placeholder="Search notes..."
+      />
 
       {showInput && (
         <div className="input-group fade-in">

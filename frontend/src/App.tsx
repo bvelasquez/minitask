@@ -7,12 +7,15 @@ import { useTheme } from './hooks/useTheme';
 import { TaskList } from './components/TaskList';
 import { NoteList } from './components/NoteList';
 
+type TabType = 'tasks' | 'notes';
+
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [allNotes, setAllNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('tasks');
 
   const { theme, toggleTheme } = useTheme();
 
@@ -213,22 +216,43 @@ function App() {
         </div>
       )}
 
-      <main className="main-content">
-        <TaskList
-          tasks={tasks}
-          onAddTask={handleAddTask}
-          onUpdateTask={handleUpdateTask}
-          onDeleteTask={handleDeleteTask}
-          onReorderTasks={handleReorderTasks}
-        />
-        <NoteList
-          notes={notes}
-          onAddNote={handleAddNote}
-          onUpdateNote={handleUpdateNote}
-          onDeleteNote={handleDeleteNote}
-          onSearchNotes={handleSearchNotes}
-        />
-      </main>
+      <div className="tabs-container">
+        <div className="tabs-header">
+          <button 
+            className={`tab-button ${activeTab === 'tasks' ? 'active' : ''}`}
+            onClick={() => setActiveTab('tasks')}
+          >
+            Tasks ({tasks.length})
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'notes' ? 'active' : ''}`}
+            onClick={() => setActiveTab('notes')}
+          >
+            Notes ({notes.length})
+          </button>
+        </div>
+        
+        <div className="tab-content">
+          {activeTab === 'tasks' && (
+            <TaskList
+              tasks={tasks}
+              onAddTask={handleAddTask}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+              onReorderTasks={handleReorderTasks}
+            />
+          )}
+          {activeTab === 'notes' && (
+            <NoteList
+              notes={notes}
+              onAddNote={handleAddNote}
+              onUpdateNote={handleUpdateNote}
+              onDeleteNote={handleDeleteNote}
+              onSearchNotes={handleSearchNotes}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
