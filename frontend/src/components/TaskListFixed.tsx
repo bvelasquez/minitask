@@ -16,7 +16,6 @@ import {
 } from '@dnd-kit/sortable';
 import { Plus, CheckSquare, ClipboardList } from 'lucide-react';
 import { Task } from '../types';
-import { TaskItem } from './TaskItemFixed';
 import { TaskItemTest } from './TaskItemTest';
 
 interface TaskListProps {
@@ -124,23 +123,22 @@ export const TaskList: React.FC<TaskListProps> = ({
           <p>No tasks yet. Add your first task to get started!</p>
         </div>
       ) : (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
-            {tasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                onToggle={(id, completed) => onUpdateTask(id, { completed })}
-                onDelete={onDeleteTask}
-                onUpdateDescription={(id, description) => onUpdateTask(id, { description })}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
+        <div>
+          {tasks.map((task) => (
+            <TaskItemTest
+              key={task.id}
+              task={task}
+              onToggle={(id, completed) => {
+                console.log(`[FRONTEND DEBUG] TaskList.onToggle called:`, {
+                  taskId: id,
+                  completed: completed,
+                  type: typeof completed
+                });
+                onUpdateTask(id, { completed });
+              }}
+            />
+          ))}
+        </div>
       )}
     </section>
   );

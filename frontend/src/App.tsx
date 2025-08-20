@@ -84,9 +84,17 @@ function App() {
 
   const handleUpdateTask = async (id: number, updates: { completed?: boolean; description?: string }) => {
     try {
+      console.log(`[FRONTEND DEBUG] handleUpdateTask called:`, {
+        taskId: id,
+        updates: updates,
+        completedType: typeof updates.completed,
+        completedValue: updates.completed
+      });
       await apiService.updateTask(id, updates);
+      console.log(`[FRONTEND DEBUG] handleUpdateTask - API call completed successfully`);
       // WebSocket will handle the update
     } catch (err) {
+      console.error(`[FRONTEND DEBUG] handleUpdateTask - API call failed:`, err);
       setError(err instanceof Error ? err.message : 'Failed to update task');
     }
   };

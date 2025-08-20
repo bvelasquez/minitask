@@ -21,13 +21,33 @@ class ApiService {
   }
 
   async updateTask(id: number, updates: TaskUpdate): Promise<Task> {
+    console.log(`[FRONTEND DEBUG] apiService.updateTask called:`, {
+      taskId: id,
+      updates: updates,
+      updatesStringified: JSON.stringify(updates)
+    });
+    
     const response = await fetch(`${API_BASE}/tasks/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),
     });
-    if (!response.ok) throw new Error('Failed to update task');
-    return response.json();
+    
+    console.log(`[FRONTEND DEBUG] apiService.updateTask response:`, {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[FRONTEND DEBUG] apiService.updateTask failed:`, errorText);
+      throw new Error('Failed to update task');
+    }
+    
+    const result = await response.json();
+    console.log(`[FRONTEND DEBUG] apiService.updateTask result:`, result);
+    return result;
   }
 
   async deleteTask(id: number): Promise<void> {

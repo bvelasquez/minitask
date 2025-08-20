@@ -108,21 +108,19 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
       className={`task-item ${isDragging ? 'dragging' : ''} ${isEditing ? 'editing' : ''}`}
       {...attributes}
     >
+      {/* Checkbox outside drag area to prevent event interference */}
+      <input
+        type="checkbox"
+        className="task-checkbox"
+        checked={task.completed}
+        onChange={(e) => {
+          console.log('[DEBUG] Checkbox changed for task', task.id, 'checked:', e.target.checked);
+          e.stopPropagation();
+          onToggle(task.id, e.target.checked);
+        }}
+      />
       {/* Drag handle area - only the content area should be draggable */}
       <div className="task-drag-handle" {...dragListeners}>
-        <input
-          type="checkbox"
-          className="task-checkbox"
-          checked={task.completed}
-          onChange={(e) => {
-            console.log('onChange Called on task checkbox', {
-              taskId: task.id,
-              completed: e.target.checked
-            });
-            e.stopPropagation();
-            onToggle(task.id, e.target.checked);
-          }}
-        />
         <div className="task-content">
           {isEditing ? (
             <div className="task-edit-container">
