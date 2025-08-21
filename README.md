@@ -53,6 +53,15 @@ Or set the environment variable:
 NODE_ENV=mcp npm start
 ```
 
+#### Browser Management Options
+- `--no-browser` - Disable automatic browser opening
+- `--force-browser` - Force open browser even if already detected as open
+- `--clear-browser-lock` - Clear the browser lock file and exit (useful for troubleshooting)
+
+The server automatically detects if the dashboard is already open in a browser tab to avoid opening duplicate tabs. It uses a lock file with timestamp and process validation to track browser state. If you need to force open a new tab, use the `--force-browser` flag.
+
+
+
 ## MCP Integration
 
 ### Adding to MCP Client Configuration

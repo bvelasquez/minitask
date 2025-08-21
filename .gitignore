@@ -48,3 +48,5 @@ coverage/
 test-mcp.js
 
 public/assets/
+lock-file
+*backup.ts

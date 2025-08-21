@@ -6,9 +6,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+import fs from 'fs';
+import os from 'os';
+import open from 'open';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const BROWSER_LOCK_FILE = path.join(os.tmpdir(), 'task-notes-dashboard.lock');(__filename);
 
 export class WebServer {
   private app: express.Application;
@@ -415,10 +420,103 @@ export class WebServer {
     });
   }
 
+  private async isDashboardAlreadyOpen(): Promise<boolean> {
+    try {
+      if (!fs.existsSync(BROWSER_LOCK_FILE)) {
+        return false;
+      }
+      
+      // Read the lock file to get the timestamp and PID
+      const lockContent = fs.readFileSync(BROWSER_LOCK_FILE, 'utf8');
+      const [lockTimeStr, pidStr] = lockContent.split(':');
+      const lockTime = parseInt(lockTimeStr);
+      const pid = pidStr ? parseInt(pidStr) : null;
+      
+      // If lock file is older than 1 hour, consider it stale
+      const oneHourAgo = Date.now() - (60 * 60 * 1000);
+      if (lockTime < oneHourAgo) {
+        fs.unlinkSync(BROWSER_LOCK_FILE);
+        return false;
+      }
+      
+      // If we have a PID, check if the process is still running
+      if (pid) {
+        try {
+          // On Unix systems, sending signal 0 checks if process exists without killing it
+          process.kill(pid, 0);
+          return true; // Process is still running
+        } catch (error) {
+          // Process is not running, remove stale lock file
+          fs.unlinkSync(BROWSER_LOCK_FILE);
+          return false;
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      // If there's any error reading the lock file, assume dashboard is not open
+      return false;
+    }
+  }
+
+  private async markDashboardAsOpen(): Promise<void> {
+    try {
+      // Store timestamp and current process PID (web server PID, not MCP PID)
+      const lockData = `${Date.now()}:${process.pid}`;
+      fs.writeFileSync(BROWSER_LOCK_FILE, lockData);
+    } catch (error) {
+      console.error('Warning: Could not create browser lock file:', error);
+    }
+  }
+
+  async openDashboardIfNeeded(force: boolean = false): Promise<void> {
+    if (!force) {
+      const alreadyOpen = await this.isDashboardAlreadyOpen();
+      
+      if (alreadyOpen) {
+        console.log('Dashboard appears to already be open in browser');
+        console.log(`If not visible, please visit: http://localhost:${this.port}`);
+        return;
+      }
+    }
+    
+    try {
+      await this.markDashboardAsOpen(); // Create lock file before opening browser
+      await open(`http://localhost:${this.port}`);
+      console.log('Dashboard opened in your default browser');
+    } catch (error) {
+      console.log(`Could not auto-open browser. Please visit: http://localhost:${this.port}`);
+    }
+  }
+
+  cleanupLockFile(): void {
+    try {
+      if (fs.existsSync(BROWSER_LOCK_FILE)) {
+        fs.unlinkSync(BROWSER_LOCK_FILE);
+      }
+    } catch (error) {
+      // Ignore cleanup errors
+    }
+  }
+
   start(): Promise<void> {
     return new Promise((resolve) => {
-      this.server.listen(this.port, () => {
+      this.server.listen(this.port, async () => {
         console.log(`Dashboard available at: http://localhost:${this.port}`);
+        
+        // Create lock file when web server starts
+        await this.markDashboardAsOpen();
+        
+        // Set up cleanup on process termination
+        const cleanup = () => {
+          console.log('Cleaning up browser lock file...');
+          this.cleanupLockFile();
+        };
+        
+        process.on('SIGINT', cleanup);
+        process.on('SIGTERM', cleanup);
+        process.on('exit', cleanup);
+        
         resolve();
       });
     });
