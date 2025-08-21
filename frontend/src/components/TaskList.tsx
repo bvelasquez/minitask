@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/sortable';
 import { Plus, CheckSquare, ClipboardList, Eye, EyeOff } from 'lucide-react';
 import { Task } from '../types';
-import { TaskItem } from './TaskItemFixed';
+import { TaskItem } from './TaskItem';
 import { SearchInput } from './SearchInput';
 
 

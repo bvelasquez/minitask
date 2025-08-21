@@ -56,7 +56,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({ note, onSave, onClose }) =
             onChange={(e) => setContent(e.target.value)}
             placeholder="Enter note content (Markdown supported)..."
             autoFocus
-            style={{ minHeight: '200px' }}
+            style={{ minHeight: '500px' }}
           />
         </div>
 

@@ -411,9 +411,12 @@ body {
 
 .task-drag-handle {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  flex: 1;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  min-width: 20px;
+  max-width: 20px;
+  flex: none;
   cursor: grab;
 }
 
@@ -636,7 +639,9 @@ body {
   gap: 6px;
   pointer-events: auto;
   z-index: 10;
-  position: relative;
+  position: absolute;
+  top: 0;
+  right: 0;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -1014,9 +1019,9 @@ body {
   background: var(--bg-primary);
   border-radius: 16px;
   padding: 24px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
+  max-width: 1200px;
+  width: 95%;
+  max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px var(--shadow-lg);
   border: 1px solid var(--border);
@@ -1680,4 +1685,9 @@ body {
     flex: 1;
     min-width: 120px;
   }
+}
+/* Task content positioning for action buttons */
+.task-content {
+  position: relative !important;
+  padding-top: 32px !important; /* Space for action buttons */
 }
