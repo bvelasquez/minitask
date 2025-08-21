@@ -35,13 +35,19 @@ export class TaskNotesMCPServer {
     const url = `${this.apiBaseUrl}${endpoint}`;
     
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
         body: body ? JSON.stringify(body) : undefined,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
@@ -51,6 +57,9 @@ export class TaskNotesMCPServer {
       return await response.json();
     } catch (error) {
       if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          throw new Error(`API request to ${url} timed out after 5 seconds`);
+        }
         throw new Error(`Failed to make API request to ${url}: ${error.message}`);
       }
       throw new Error(`Failed to make API request to ${url}: ${String(error)}`);
@@ -487,7 +496,27 @@ export class TaskNotesMCPServer {
     });
   }
 
+  async validateApiConnection(): Promise<boolean> {
+    try {
+      await this.makeApiRequest('GET', '/tasks');
+      return true;
+    } catch (error) {
+      console.error('Failed to validate API connection:', error instanceof Error ? error.message : String(error));
+      return false;
+    }
+  }
+
   async start(): Promise<void> {
+    // Validate API connection before starting MCP server
+    console.error('Validating API connection...');
+    const isConnected = await this.validateApiConnection();
+    
+    if (!isConnected) {
+      throw new Error('Cannot start MCP server: Web API is not accessible at ' + this.apiBaseUrl);
+    }
+    
+    console.error('API connection validated successfully');
+    
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
   }

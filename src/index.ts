@@ -12,8 +12,40 @@ const execAsync = promisify(exec);
 
 // Browser lock management is now handled by the WebServer class
 
+async function isWebServerHealthy(): Promise<boolean> {
+  try {
+    const response = await fetch('http://localhost:3000/api/tasks', {
+      method: 'GET',
+      signal: AbortSignal.timeout(2000) // 2 second timeout
+    });
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function waitForServerHealth(timeoutMs: number): Promise<boolean> {
+  const startTime = Date.now();
+  const checkInterval = 500; // Check every 500ms
+  
+  while (Date.now() - startTime < timeoutMs) {
+    if (await isWebServerHealthy()) {
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, checkInterval));
+  }
+  
+  return false;
+}
+
 async function ensureWebServerRunning(): Promise<boolean> {
   try {
+    // First, try to health check the API directly
+    if (await isWebServerHealthy()) {
+      console.error('Task-notes web server already running and healthy');
+      return true;
+    }
+
     // Check if PM2 app is running
     const { stdout } = await execAsync('pm2 jlist');
     const processes = JSON.parse(stdout);
@@ -23,25 +55,38 @@ async function ensureWebServerRunning(): Promise<boolean> {
       console.error('Starting task-notes web server with PM2...');
       await execAsync('pm2 start ecosystem.config.cjs');
       
-      // Wait for server to be ready
+      // Wait for server to be ready with health checks
       console.error('Waiting for server to start...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      const isHealthy = await waitForServerHealth(10000); // 10 second timeout
       
-      // Verify it started
-      const { stdout: newStdout } = await execAsync('pm2 jlist');
-      const newProcesses = JSON.parse(newStdout);
-      const newTaskNotesApp = newProcesses.find((p: any) => p.name === 'task-notes-server');
-      
-      if (newTaskNotesApp && newTaskNotesApp.pm2_env.status === 'online') {
+      if (isHealthy) {
         console.error('Web server started successfully with PM2');
         return true;
       } else {
-        console.error('Failed to start web server with PM2');
+        console.error('Failed to start web server with PM2 - health check failed');
         return false;
       }
     } else {
-      console.error('Task-notes web server already running via PM2');
-      return true;
+      // PM2 says it's online, but let's verify with health check
+      console.error('PM2 reports server online, verifying health...');
+      const isHealthy = await waitForServerHealth(5000); // 5 second timeout for existing server
+      
+      if (isHealthy) {
+        console.error('Task-notes web server confirmed healthy');
+        return true;
+      } else {
+        console.error('PM2 server online but API not responding, attempting restart...');
+        await execAsync('pm2 restart task-notes-server');
+        const isHealthyAfterRestart = await waitForServerHealth(10000);
+        
+        if (isHealthyAfterRestart) {
+          console.error('Web server restarted and is now healthy');
+          return true;
+        } else {
+          console.error('Failed to get healthy web server after restart');
+          return false;
+        }
+      }
     }
   } catch (error) {
     console.error('Error managing PM2 server:', error);
@@ -95,8 +140,9 @@ async function main() {
     const webServerRunning = await ensureWebServerRunning();
     
     if (!webServerRunning) {
-      console.error('Error: Could not start web server via PM2');
+      console.error('Error: Could not start or connect to web server via PM2');
       console.error('MCP server requires the web server to be running for API access');
+      console.error('Please check PM2 status with: pm2 status');
       process.exit(1);
     }
     
@@ -122,7 +168,14 @@ async function main() {
       process.exit(0);
     });
     
-    await mcpServer.start();
+    try {
+      await mcpServer.start();
+    } catch (error) {
+      console.error('Failed to start MCP server:', error instanceof Error ? error.message : String(error));
+      console.error('This usually means the web server API is not accessible.');
+      console.error('Try running: pm2 restart task-notes-server');
+      process.exit(1);
+    }
   } else {
     // Run web server with auto-opening dashboard (traditional mode)
     console.log('Starting Task Notes Server with Web Dashboard...');
