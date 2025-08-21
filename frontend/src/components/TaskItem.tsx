@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Trash2, Edit, GripVertical, Copy, Download, Bot } from 'lucide-react';
+import { Trash2, Edit, GripVertical, Copy, Download, Bot, ChevronDown, ChevronUp, FileText } from 'lucide-react';
 import { Task } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
@@ -10,11 +10,13 @@ interface TaskItemProps {
   onToggle: (id: number, completed: boolean) => void;
   onDelete: (id: number) => void;
   onUpdateDescription: (id: number, description: string) => void;
+  onCopyToNote: (content: string) => void;
 }
 
-export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onUpdateDescription }) => {
+export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onUpdateDescription, onCopyToNote }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(task.description);
+  const [isExpanded, setIsExpanded] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const {
@@ -44,6 +46,9 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
     setEditValue(task.description);
   }, [task.description]);
 
+  // Determine if task content is long enough to need expand/collapse
+  const isLongContent = task.description.length > 200 || task.description.split('\n').length > 3;
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { 
@@ -64,6 +69,38 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
     e.stopPropagation();
     e.preventDefault();
     setIsEditing(true);
+  };
+
+  const handleExpandToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleCopyToNote = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    
+    const noteContent = `# Task: ${task.description.split('\n')[0]}
+
+**Original Task ID:** ${task.id}  
+**Created:** ${formatDate(task.created_at)}  
+**Status:** ${task.completed ? 'Completed' : 'Pending'}
+
+---
+
+${task.description}`;
+
+    try {
+      onCopyToNote(noteContent);
+      // Add visual feedback
+      const button = e.currentTarget as HTMLButtonElement;
+      button.classList.add('success-flash');
+      setTimeout(() => button.classList.remove('success-flash'), 600);
+      console.log('Task copied to notes');
+    } catch (err) {
+      console.error('Failed to copy task to note:', err);
+    }
   };
 
   const handleCopyMarkdown = async (e: React.MouseEvent) => {
@@ -182,11 +219,18 @@ Please help me work on this task. If you can complete it or make progress, pleas
     e.stopPropagation();
   };
 
+  // Get preview content for collapsed state
+  const getPreviewContent = () => {
+    const lines = task.description.split('\n');
+    const firstLines = lines.slice(0, 5).join('\n');
+    return firstLines.length > 300 ? firstLines.substring(0, 300) + '...' : firstLines;
+  };
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`task-item ${isDragging ? 'dragging' : ''} ${isEditing ? 'editing' : ''}`}
+      className={`task-item ${isDragging ? 'dragging' : ''} ${isEditing ? 'editing' : ''} ${isExpanded ? 'expanded' : 'collapsed'}`}
       {...attributes}
     >
       {/* Drag handle - only this small area is draggable */}
@@ -217,6 +261,22 @@ Please help me work on this task. If you can complete it or make progress, pleas
       <div className="task-content">
         {/* Action buttons positioned at top-right inside content */}
         <div className="task-actions" onClick={handleActionsClick}>
+          {isLongContent && (
+            <button
+              className="btn btn-secondary btn-small btn-icon"
+              onClick={handleExpandToggle}
+              title={isExpanded ? "Collapse task" : "Expand task"}
+            >
+              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+          )}
+          <button
+            className="btn btn-accent btn-small btn-icon"
+            onClick={handleCopyToNote}
+            title="Copy task to notes"
+          >
+            <FileText size={14} />
+          </button>
           <button
             className="btn btn-secondary btn-small btn-icon"
             onClick={handleCopyMarkdown}
@@ -270,8 +330,19 @@ Please help me work on this task. If you can complete it or make progress, pleas
         ) : (
           <div 
             className={`task-description ${task.completed ? 'completed' : ''}`}
+            onClick={isLongContent ? handleExpandToggle : undefined}
+            style={{ cursor: isLongContent ? 'pointer' : 'default' }}
           >
-            <MarkdownRenderer content={task.description} />
+            {isLongContent && !isExpanded ? (
+              <div className="task-preview">
+                <MarkdownRenderer content={getPreviewContent()} />
+                <div className="task-expand-hint">
+                  Click to expand or use the expand button...
+                </div>
+              </div>
+            ) : (
+              <MarkdownRenderer content={task.description} />
+            )}
           </div>
         )}
         <div className="task-meta">

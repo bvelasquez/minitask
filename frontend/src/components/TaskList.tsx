@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -26,6 +26,7 @@ interface TaskListProps {
   onUpdateTask: (id: number, updates: { completed?: boolean; description?: string }) => void;
   onDeleteTask: (id: number) => void;
   onReorderTasks: (taskIds: number[]) => void;
+  onAddNote: (content: string) => void; // New prop for adding notes
 }
 
 export const TaskList: React.FC<TaskListProps> = ({
@@ -34,11 +35,22 @@ export const TaskList: React.FC<TaskListProps> = ({
   onUpdateTask,
   onDeleteTask,
   onReorderTasks,
+  onAddNote,
 }) => {
   const [showInput, setShowInput] = useState(false);
   const [newTaskDescription, setNewTaskDescription] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showCompleted, setShowCompleted] = useState(true);
+  
+  // Load showCompleted state from localStorage
+  const [showCompleted, setShowCompleted] = useState(() => {
+    const saved = localStorage.getItem('taskList_showCompleted');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  // Save showCompleted state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('taskList_showCompleted', JSON.stringify(showCompleted));
+  }, [showCompleted]);
 
   // Filter and sort tasks based on search query and completion status
   const filteredTasks = tasks
@@ -193,6 +205,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                 onToggle={(id, completed) => onUpdateTask(id, { completed })}
                 onDelete={onDeleteTask}
                 onUpdateDescription={(id, description) => onUpdateTask(id, { description })}
+                onCopyToNote={onAddNote}
               />
             ))}
           </SortableContext>

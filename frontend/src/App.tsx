@@ -17,10 +17,21 @@ function App() {
   const [allNotes, setAllNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('tasks');
+  
+  // Load active tab from localStorage
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const saved = localStorage.getItem('app_activeTab');
+    return (saved === 'tasks' || saved === 'notes') ? saved : 'tasks';
+  });
+  
   const [expandedNote, setExpandedNote] = useState<Note | null>(null);
 
   const { theme, toggleTheme } = useTheme();
+
+  // Save active tab to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('app_activeTab', activeTab);
+  }, [activeTab]);
 
   // Load initial data
   useEffect(() => {
@@ -255,6 +266,7 @@ function App() {
               onUpdateTask={handleUpdateTask}
               onDeleteTask={handleDeleteTask}
               onReorderTasks={handleReorderTasks}
+              onAddNote={handleAddNote}
             />
           )}
           {activeTab === 'notes' && (
