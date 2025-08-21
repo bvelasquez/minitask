@@ -26,7 +26,8 @@ interface TaskListProps {
   onUpdateTask: (id: number, updates: { completed?: boolean; description?: string }) => void;
   onDeleteTask: (id: number) => void;
   onReorderTasks: (taskIds: number[]) => void;
-  onAddNote: (content: string) => void; // New prop for adding notes
+  onAddNote: (content: string) => void;
+  onTaskClick?: (taskId: number) => void;
 }
 
 export const TaskList: React.FC<TaskListProps> = ({
@@ -36,6 +37,7 @@ export const TaskList: React.FC<TaskListProps> = ({
   onDeleteTask,
   onReorderTasks,
   onAddNote,
+  onTaskClick,
 }) => {
   const [showInput, setShowInput] = useState(false);
   const [newTaskDescription, setNewTaskDescription] = useState('');
@@ -206,6 +208,7 @@ export const TaskList: React.FC<TaskListProps> = ({
                 onDelete={onDeleteTask}
                 onUpdateDescription={(id, description) => onUpdateTask(id, { description })}
                 onCopyToNote={onAddNote}
+                onTaskClick={onTaskClick}
               />
             ))}
           </SortableContext>

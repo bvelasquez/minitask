@@ -12,6 +12,7 @@ interface NoteListProps {
   onDeleteNote: (id: number) => void;
   onSearchNotes: (query: string) => void;
   onExpandNote: (note: Note) => void;
+  onNoteClick?: (noteId: number) => void;
 }
 
 export const NoteList: React.FC<NoteListProps> = ({
@@ -21,6 +22,7 @@ export const NoteList: React.FC<NoteListProps> = ({
   onDeleteNote,
   onSearchNotes,
   onExpandNote,
+  onNoteClick,
 }) => {
   const [showInput, setShowInput] = useState(false);
   const [newNoteContent, setNewNoteContent] = useState('');
@@ -112,6 +114,7 @@ export const NoteList: React.FC<NoteListProps> = ({
             onEdit={handleEditNote}
             onDelete={onDeleteNote}
             onExpand={onExpandNote}
+            onNoteClick={onNoteClick}
           />
         ))
       )}

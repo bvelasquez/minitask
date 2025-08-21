@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2, Maximize2 } from 'lucide-react';
+import { Edit, Trash2, Maximize2, ExternalLink, Link } from 'lucide-react';
 import { Note } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
@@ -8,9 +8,10 @@ interface NoteItemProps {
   onEdit: (note: Note) => void;
   onDelete: (id: number) => void;
   onExpand: (note: Note) => void;
+  onNoteClick?: (noteId: number) => void;
 }
 
-export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete, onExpand }) => {
+export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete, onExpand, onNoteClick }) => {
   const createPreview = (content: string): string => {
     const maxLength = 200;
     if (content.length <= maxLength) {
@@ -56,6 +57,16 @@ export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete, onEx
     }
   };
 
+  const handleCopyLink = async () => {
+    try {
+      const link = `${window.location.origin}/note/${note.id}`;
+      await navigator.clipboard.writeText(link);
+      console.log('Note link copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy link to clipboard:', err);
+    }
+  };
+
   return (
     <div className="note-item fade-in">
       <div className="note-header">
@@ -72,6 +83,22 @@ export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete, onEx
               <Maximize2 size={14} />
             </button>
           )}
+          {onNoteClick && (
+            <button
+              className="btn btn-secondary btn-small btn-icon"
+              onClick={() => onNoteClick(note.id)}
+              title="Open note in new view"
+            >
+              <ExternalLink size={14} />
+            </button>
+          )}
+          <button
+            className="btn btn-secondary btn-small btn-icon"
+            onClick={handleCopyLink}
+            title="Copy note link"
+          >
+            <Link size={14} />
+          </button>
           <button
             className="btn btn-primary btn-small btn-icon"
             onClick={() => onEdit(note)}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
 import { Task, Note } from './types';
 import { apiService } from './services/api';
@@ -7,11 +8,13 @@ import { useTheme } from './hooks/useTheme';
 import { TaskList } from './components/TaskList';
 import { NoteList } from './components/NoteList';
 import { NoteFullView } from './components/NoteFullView';
+import { TaskRoute } from './components/TaskRoute';
+import { NoteRoute } from './components/NoteRoute';
 import { Instructions } from './components/Instructions';
 
 type TabType = 'tasks' | 'notes';
 
-function App() {
+function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [allNotes, setAllNotes] = useState<Note[]>([]);
@@ -25,6 +28,7 @@ function App() {
   });
   
   const [expandedNote, setExpandedNote] = useState<Note | null>(null);
+  const navigate = useNavigate();
 
   const { theme, toggleTheme } = useTheme();
 
@@ -193,6 +197,15 @@ function App() {
     setExpandedNote(note);
   };
 
+  // Navigation helpers
+  const handleTaskClick = (taskId: number) => {
+    navigate(`/task/${taskId}`);
+  };
+
+  const handleNoteClick = (noteId: number) => {
+    navigate(`/note/${noteId}`);
+  };
+
   if (loading) {
     return (
       <div className="container">
@@ -267,6 +280,7 @@ function App() {
               onDeleteTask={handleDeleteTask}
               onReorderTasks={handleReorderTasks}
               onAddNote={handleAddNote}
+              onTaskClick={handleTaskClick}
             />
           )}
           {activeTab === 'notes' && (
@@ -277,6 +291,7 @@ function App() {
               onDeleteNote={handleDeleteNote}
               onSearchNotes={handleSearchNotes}
               onExpandNote={handleExpandNote}
+              onNoteClick={handleNoteClick}
             />
           )}
         </div>
@@ -293,6 +308,25 @@ function App() {
 
       <Instructions />
     </div>
+  );
+}
+
+function App() {
+  // Shared note handler for routes
+  const handleAddNote = async (content: string) => {
+    try {
+      await apiService.createNote(content);
+    } catch (err) {
+      console.error('Failed to add note:', err);
+    }
+  };
+
+  return (
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/task/:id" element={<TaskRoute onAddNote={handleAddNote} />} />
+      <Route path="/note/:id" element={<NoteRoute />} />
+    </Routes>
   );
 }
 

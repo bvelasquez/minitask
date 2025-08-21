@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Trash2, Edit, GripVertical, Copy, Download, Bot, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+import { Trash2, Edit, GripVertical, Copy, Download, Bot, ChevronDown, ChevronUp, FileText, ExternalLink, Link } from 'lucide-react';
 import { Task } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
@@ -11,9 +11,10 @@ interface TaskItemProps {
   onDelete: (id: number) => void;
   onUpdateDescription: (id: number, description: string) => void;
   onCopyToNote: (content: string) => void;
+  onTaskClick?: (taskId: number) => void;
 }
 
-export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onUpdateDescription, onCopyToNote }) => {
+export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onUpdateDescription, onCopyToNote, onTaskClick }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(task.description);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -122,6 +123,22 @@ ${task.description}`;
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
+    }
+  };
+
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      const link = `${window.location.origin}/task/${task.id}`;
+      await navigator.clipboard.writeText(link);
+      // Add visual feedback
+      const button = e.currentTarget as HTMLButtonElement;
+      button.classList.add('success-flash');
+      setTimeout(() => button.classList.remove('success-flash'), 600);
+      console.log('Task link copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy link to clipboard:', err);
     }
   };
 
@@ -270,6 +287,15 @@ Please help me work on this task. If you can complete it or make progress, pleas
               {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
           )}
+          {onTaskClick && (
+            <button
+              className="btn btn-secondary btn-small btn-icon"
+              onClick={() => onTaskClick(task.id)}
+              title="Open task in new view"
+            >
+              <ExternalLink size={14} />
+            </button>
+          )}
           <button
             className="btn btn-accent btn-small btn-icon"
             onClick={handleCopyToNote}
@@ -283,6 +309,13 @@ Please help me work on this task. If you can complete it or make progress, pleas
             title="Copy markdown to clipboard"
           >
             <Copy size={14} />
+          </button>
+          <button
+            className="btn btn-secondary btn-small btn-icon"
+            onClick={handleCopyLink}
+            title="Copy task link"
+          >
+            <Link size={14} />
           </button>
           <button
             className="btn btn-secondary btn-small btn-icon"
@@ -330,15 +363,10 @@ Please help me work on this task. If you can complete it or make progress, pleas
         ) : (
           <div 
             className={`task-description ${task.completed ? 'completed' : ''}`}
-            onClick={isLongContent ? handleExpandToggle : undefined}
-            style={{ cursor: isLongContent ? 'pointer' : 'default' }}
           >
             {isLongContent && !isExpanded ? (
               <div className="task-preview">
                 <MarkdownRenderer content={getPreviewContent()} />
-                <div className="task-expand-hint">
-                  Click to expand or use the expand button...
-                </div>
               </div>
             ) : (
               <MarkdownRenderer content={task.description} />
