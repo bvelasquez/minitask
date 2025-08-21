@@ -463,6 +463,118 @@ body {
   opacity: 0.9;
 }
 
+/* Task-specific markdown styles */
+.task-description .markdown-renderer {
+  font-size: inherit;
+  line-height: inherit;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.task-description .markdown-content {
+  line-height: inherit;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Reduce margins for markdown elements within tasks */
+.task-description .markdown-content h1,
+.task-description .markdown-content h2,
+.task-description .markdown-content h3,
+.task-description .markdown-content h4,
+.task-description .markdown-content h5,
+.task-description .markdown-content h6 {
+  margin: 8px 0 4px 0;
+  font-size: 1em;
+  font-weight: 600;
+  border-bottom: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.task-description .markdown-content p {
+  margin: 4px 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.task-description .markdown-content ul,
+.task-description .markdown-content ol {
+  margin: 4px 0;
+  padding-left: 16px;
+}
+
+.task-description .markdown-content li {
+  margin: 2px 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.task-description .markdown-content blockquote {
+  margin: 4px 0;
+  padding-left: 12px;
+  border-left-width: 3px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.task-description .markdown-content code {
+  font-size: 0.9em;
+  padding: 1px 4px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.task-description .markdown-content pre {
+  margin: 8px 0;
+  padding: 8px;
+  font-size: 0.85em;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Word wrapping for links and tables in tasks */
+.task-description .markdown-content a {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-all;
+}
+
+.task-description .markdown-content table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.task-description .markdown-content td,
+.task-description .markdown-content th {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Ensure completed tasks apply strikethrough to all markdown content */
+.task-description.completed .markdown-content,
+.task-description.completed .markdown-content * {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Keep links functional in completed tasks but muted */
+.task-description.completed .markdown-content a {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.task-description.completed .markdown-content a:hover {
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
+
 .task-item.editing {
   cursor: default;
 }

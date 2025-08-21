@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Trash2, Edit } from 'lucide-react';
 import { Task } from '../types';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface TaskItemProps {
   task: Task;
@@ -16,32 +17,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
   const [editValue, setEditValue] = useState(task.description);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Function to convert URLs in text to clickable links
-  const renderTextWithLinks = (text: string) => {
-    // URL regex pattern that matches http, https, and www URLs
-    const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
-    const parts = text.split(urlRegex);
-    
-    return parts.map((part, index) => {
-      if (part.match(urlRegex)) {
-        // Ensure the URL has a protocol
-        const url = part.startsWith('www.') ? `https://${part}` : part;
-        return (
-          <a
-            key={index}
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="task-link"
-            onClick={(e) => e.stopPropagation()} // Prevent drag when clicking links
-          >
-            {part}
-          </a>
-        );
-      }
-      return part;
-    });
-  };
+
 
   const {
     attributes,
@@ -166,12 +142,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
             <div 
               className={`task-description ${task.completed ? 'completed' : ''}`}
             >
-              {task.description.split('\n').map((line, index) => (
-                <React.Fragment key={index}>
-                  {renderTextWithLinks(line)}
-                  {index < task.description.split('\n').length - 1 && <br />}
-                </React.Fragment>
-              ))}
+              <MarkdownRenderer content={task.description} />
             </div>
           )}
           <div className="task-meta">
