@@ -93,6 +93,20 @@ export const TaskList: React.FC<TaskListProps> = ({
     }
   };
 
+  const handleMoveToTop = (taskId: number) => {
+    const taskIds = tasks.map(task => task.id);
+    const filteredIds = taskIds.filter(id => id !== taskId);
+    const reorderedIds = [taskId, ...filteredIds];
+    onReorderTasks(reorderedIds);
+  };
+
+  const handleMoveToBottom = (taskId: number) => {
+    const taskIds = tasks.map(task => task.id);
+    const filteredIds = taskIds.filter(id => id !== taskId);
+    const reorderedIds = [...filteredIds, taskId];
+    onReorderTasks(reorderedIds);
+  };
+
   const handleAddTask = () => {
     if (newTaskDescription.trim()) {
       onAddTask(newTaskDescription.trim());
@@ -209,6 +223,8 @@ export const TaskList: React.FC<TaskListProps> = ({
                 onUpdateDescription={(id, description) => onUpdateTask(id, { description })}
                 onCopyToNote={onAddNote}
                 onTaskClick={onTaskClick}
+                onMoveToTop={handleMoveToTop}
+                onMoveToBottom={handleMoveToBottom}
               />
             ))}
           </SortableContext>

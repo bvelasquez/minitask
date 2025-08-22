@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Trash2, Edit, GripVertical, Copy, Download, Bot, ChevronDown, ChevronUp, FileText, ExternalLink, Link } from 'lucide-react';
+import { Trash2, Edit, GripVertical, Copy, Download, Bot, ChevronDown, ChevronUp, FileText, ExternalLink, Link, ArrowUp, ArrowDown } from 'lucide-react';
 import { Task } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
@@ -12,9 +12,11 @@ interface TaskItemProps {
   onUpdateDescription: (id: number, description: string) => void;
   onCopyToNote: (content: string) => void;
   onTaskClick?: (taskId: number) => void;
+  onMoveToTop?: (id: number) => void;
+  onMoveToBottom?: (id: number) => void;
 }
 
-export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onUpdateDescription, onCopyToNote, onTaskClick }) => {
+export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, onUpdateDescription, onCopyToNote, onTaskClick, onMoveToTop, onMoveToBottom }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(task.description);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -51,15 +53,27 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
   const extractTaskHeader = (content: string): string => {
     const lines = content.trim().split('\n');
     
-    // Look for markdown headers first
+    // First priority: Look for the first # markdown header (single #)
     for (const line of lines) {
       const trimmedLine = line.trim();
-      if (trimmedLine.match(/^#{1,6}\s+(.+)/)) {
-        return trimmedLine.replace(/^#{1,6}\s+/, '').trim();
+      const singleHeaderMatch = trimmedLine.match(/^#\s+(.+)/);
+      if (singleHeaderMatch) {
+        const headerText = singleHeaderMatch[1].trim();
+        return headerText.length > 50 ? headerText.substring(0, 50) + '...' : headerText;
       }
     }
     
-    // Look for lines that start with common task indicators
+    // Second priority: Look for any other markdown headers (##, ###, etc.)
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      const headerMatch = trimmedLine.match(/^#{2,6}\s+(.+)/);
+      if (headerMatch) {
+        const headerText = headerMatch[1].trim();
+        return headerText.length > 50 ? headerText.substring(0, 50) + '...' : headerText;
+      }
+    }
+    
+    // Third priority: Look for lines that start with common task indicators
     for (const line of lines) {
       const trimmedLine = line.trim();
       if (trimmedLine.match(/^[-*+]\s+(.+)/)) {
@@ -70,7 +84,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
       }
     }
     
-    // Look for lines that start with numbers (numbered lists)
+    // Fourth priority: Look for lines that start with numbers (numbered lists)
     for (const line of lines) {
       const trimmedLine = line.trim();
       if (trimmedLine.match(/^\d+\.\s+(.+)/)) {
@@ -81,7 +95,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
       }
     }
     
-    // Look for lines that start with common action words
+    // Fifth priority: Look for lines that start with common action words
     const actionWords = ['TODO:', 'TASK:', 'ACTION:', 'FIX:', 'BUG:', 'FEATURE:', 'IMPLEMENT:', 'CREATE:', 'UPDATE:', 'DELETE:', 'REVIEW:'];
     for (const line of lines) {
       const trimmedLine = line.trim();
@@ -95,7 +109,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
       }
     }
     
-    // Fall back to first non-empty line
+    // Final fallback: First non-empty line
     for (const line of lines) {
       const trimmedLine = line.trim();
       if (trimmedLine.length > 0) {
@@ -350,73 +364,118 @@ Please help me work on this task. If you can complete it or make progress, pleas
         
         {/* Action buttons positioned at top-right inside content */}
         <div className="task-actions" onClick={handleActionsClick}>
-          {isLongContent && (
+          {/* View Actions Group */}
+          <div className="action-group">
+            {isLongContent && (
+              <button
+                className="btn btn-secondary btn-small btn-icon"
+                onClick={handleExpandToggle}
+                title={isExpanded ? "Collapse task" : "Expand task"}
+              >
+                {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              </button>
+            )}
+            {onTaskClick && (
+              <button
+                className="btn btn-secondary btn-small btn-icon"
+                onClick={() => onTaskClick(task.id)}
+                title="Open task in new view"
+              >
+                <ExternalLink size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Organization Actions Group */}
+          {(onMoveToTop || onMoveToBottom) && (
+            <>
+              <div className="action-divider"></div>
+              <div className="action-group">
+                {onMoveToTop && (
+                  <button
+                    className="btn btn-secondary btn-small btn-icon"
+                    onClick={() => onMoveToTop(task.id)}
+                    title="Move to top"
+                  >
+                    <ArrowUp size={14} />
+                  </button>
+                )}
+                {onMoveToBottom && (
+                  <button
+                    className="btn btn-secondary btn-small btn-icon"
+                    onClick={() => onMoveToBottom(task.id)}
+                    title="Move to bottom"
+                  >
+                    <ArrowDown size={14} />
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Export Actions Group */}
+          <div className="action-divider"></div>
+          <div className="action-group">
+            <button
+              className="btn btn-accent btn-small btn-icon"
+              onClick={handleCopyToNote}
+              title="Copy task to notes"
+            >
+              <FileText size={14} />
+            </button>
             <button
               className="btn btn-secondary btn-small btn-icon"
-              onClick={handleExpandToggle}
-              title={isExpanded ? "Collapse task" : "Expand task"}
+              onClick={handleCopyMarkdown}
+              title="Copy markdown to clipboard"
             >
-              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              <Copy size={14} />
             </button>
-          )}
-          {onTaskClick && (
             <button
               className="btn btn-secondary btn-small btn-icon"
-              onClick={() => onTaskClick(task.id)}
-              title="Open task in new view"
+              onClick={handleCopyLink}
+              title="Copy task link"
             >
-              <ExternalLink size={14} />
+              <Link size={14} />
             </button>
-          )}
-          <button
-            className="btn btn-accent btn-small btn-icon"
-            onClick={handleCopyToNote}
-            title="Copy task to notes"
-          >
-            <FileText size={14} />
-          </button>
-          <button
-            className="btn btn-secondary btn-small btn-icon"
-            onClick={handleCopyMarkdown}
-            title="Copy markdown to clipboard"
-          >
-            <Copy size={14} />
-          </button>
-          <button
-            className="btn btn-secondary btn-small btn-icon"
-            onClick={handleCopyLink}
-            title="Copy task link"
-          >
-            <Link size={14} />
-          </button>
-          <button
-            className="btn btn-secondary btn-small btn-icon"
-            onClick={handleDownloadMarkdown}
-            title="Download as markdown file"
-          >
-            <Download size={14} />
-          </button>
-          <button
-            className="btn btn-accent btn-small btn-icon"
-            onClick={handleCreateAIPrompt}
-            title="Create AI prompt for this task"
-          >
-            <Bot size={14} />
-          </button>
-          <button
-            className="btn btn-primary btn-small btn-icon"
-            onClick={handleEditClick}
-            title="Edit task"
-          >
-            <Edit size={14} />
-          </button>
-          <button
-            className="btn btn-danger btn-small btn-icon"
-            onClick={handleDelete}
-            title="Delete task"
-          >
-            <Trash2 size={14} />
-          </button>
+            <button
+              className="btn btn-secondary btn-small btn-icon"
+              onClick={handleDownloadMarkdown}
+              title="Download as markdown file"
+            >
+              <Download size={14} />
+            </button>
+          </div>
+
+          {/* AI Actions Group */}
+          <div className="action-divider"></div>
+          <div className="action-group">
+            <button
+              className="btn btn-accent btn-small btn-icon"
+              onClick={handleCreateAIPrompt}
+              title="Create AI prompt for this task"
+            >
+              <Bot size={14} />
+            </button>
+          </div>
+
+          {/* Primary Actions Group */}
+          <div className="action-divider"></div>
+          <div className="action-group">
+            <button
+              className="btn btn-primary btn-small btn-icon"
+              onClick={handleEditClick}
+              title="Edit task"
+            >
+              <Edit size={14} />
+            </button>
+            <button
+              className="btn btn-danger btn-small btn-icon"
+              onClick={handleDelete}
+              title="Delete task"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
         </div>
         
         {isEditing ? (

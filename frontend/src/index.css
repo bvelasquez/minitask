@@ -683,6 +683,33 @@ body {
   align-items: center;
 }
 
+/* Action group and divider styles */
+.action-group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.action-divider {
+  width: 1px;
+  height: 20px;
+  background-color: var(--border);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* Responsive adjustments for action groups */
+@media (max-width: 768px) {
+  .action-group {
+    gap: 2px;
+  }
+  
+  .action-divider {
+    height: 16px;
+    margin: 0 2px;
+  }
+}
+
 .task-actions .btn {
   pointer-events: auto;
   z-index: 11;
