@@ -409,6 +409,13 @@ body {
   cursor: grabbing;
 }
 
+/* Completed task visual indicator */
+.task-item.completed {
+  background: var(--bg-primary);
+  border-left: 4px solid var(--text-muted);
+  opacity: 0.9;
+}
+
 .task-drag-handle {
   display: flex;
   align-items: center;
@@ -435,6 +442,36 @@ body {
   flex: 1;
 }
 
+/* Task header styles */
+.task-header {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.task-title {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  max-width: calc(100% - 120px); /* Leave space for action buttons */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-item.completed .task-title {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
 .task-description {
   font-size: 14px;
   line-height: 1.5;
@@ -447,8 +484,8 @@ body {
 }
 
 .task-description.completed {
-  text-decoration: line-through;
   color: var(--text-muted);
+  opacity: 0.8;
 }
 
 .task-link {
@@ -572,11 +609,11 @@ body {
   word-break: break-word;
 }
 
-/* Ensure completed tasks apply strikethrough to all markdown content */
+/* Ensure completed tasks apply muted styling to all markdown content */
 .task-description.completed .markdown-content,
 .task-description.completed .markdown-content * {
-  text-decoration: line-through;
   color: var(--text-muted);
+  opacity: 0.8;
 }
 
 /* Keep links functional in completed tasks but muted */

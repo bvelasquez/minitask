@@ -47,6 +47,73 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
     setEditValue(task.description);
   }, [task.description]);
 
+  // Extract a reasonable header from task content
+  const extractTaskHeader = (content: string): string => {
+    const lines = content.trim().split('\n');
+    
+    // Look for markdown headers first
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine.match(/^#{1,6}\s+(.+)/)) {
+        return trimmedLine.replace(/^#{1,6}\s+/, '').trim();
+      }
+    }
+    
+    // Look for lines that start with common task indicators
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine.match(/^[-*+]\s+(.+)/)) {
+        const content = trimmedLine.replace(/^[-*+]\s+/, '').trim();
+        if (content.length > 0) {
+          return content.length > 50 ? content.substring(0, 50) + '...' : content;
+        }
+      }
+    }
+    
+    // Look for lines that start with numbers (numbered lists)
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine.match(/^\d+\.\s+(.+)/)) {
+        const content = trimmedLine.replace(/^\d+\.\s+/, '').trim();
+        if (content.length > 0) {
+          return content.length > 50 ? content.substring(0, 50) + '...' : content;
+        }
+      }
+    }
+    
+    // Look for lines that start with common action words
+    const actionWords = ['TODO:', 'TASK:', 'ACTION:', 'FIX:', 'BUG:', 'FEATURE:', 'IMPLEMENT:', 'CREATE:', 'UPDATE:', 'DELETE:', 'REVIEW:'];
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      for (const actionWord of actionWords) {
+        if (trimmedLine.toUpperCase().startsWith(actionWord)) {
+          const content = trimmedLine.substring(actionWord.length).trim();
+          if (content.length > 0) {
+            return content.length > 50 ? content.substring(0, 50) + '...' : content;
+          }
+        }
+      }
+    }
+    
+    // Fall back to first non-empty line
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine.length > 0) {
+        // Remove markdown formatting for display
+        const cleanLine = trimmedLine
+          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+          .replace(/\*(.*?)\*/g, '$1')     // Remove italic
+          .replace(/`(.*?)`/g, '$1')       // Remove inline code
+          .replace(/\[(.*?)\]\(.*?\)/g, '$1') // Remove links, keep text
+          .trim();
+        
+        return cleanLine.length > 50 ? cleanLine.substring(0, 50) + '...' : cleanLine;
+      }
+    }
+    
+    return 'Untitled Task';
+  };
+
   // Determine if task content is long enough to need expand/collapse
   const isLongContent = task.description.length > 200 || task.description.split('\n').length > 3;
 
@@ -247,7 +314,7 @@ Please help me work on this task. If you can complete it or make progress, pleas
     <div
       ref={setNodeRef}
       style={style}
-      className={`task-item ${isDragging ? 'dragging' : ''} ${isEditing ? 'editing' : ''} ${isExpanded ? 'expanded' : 'collapsed'}`}
+      className={`task-item ${isDragging ? 'dragging' : ''} ${isEditing ? 'editing' : ''} ${isExpanded ? 'expanded' : 'collapsed'} ${task.completed ? 'completed' : ''}`}
       {...attributes}
     >
       {/* Drag handle - only this small area is draggable */}
@@ -276,6 +343,11 @@ Please help me work on this task. If you can complete it or make progress, pleas
       
       {/* Task content - NOT draggable */}
       <div className="task-content">
+        {/* Task header */}
+        <div className="task-header">
+          <span className="task-title">{extractTaskHeader(task.description)}</span>
+        </div>
+        
         {/* Action buttons positioned at top-right inside content */}
         <div className="task-actions" onClick={handleActionsClick}>
           {isLongContent && (
