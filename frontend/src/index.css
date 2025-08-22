@@ -515,74 +515,67 @@ body {
   opacity: 0.9;
 }
 
-/* Task-specific markdown styles */
-.task-description .markdown-renderer {
-  font-size: inherit;
-  line-height: inherit;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
+/* Task-specific markdown styles - IMPORTANT: These must override general markdown styles */
 .task-description .markdown-content {
-  line-height: inherit;
+  line-height: 1.4 !important; /* Tighter line height for tasks */
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
 }
 
-/* Reduce margins for markdown elements within tasks */
+/* Reduce margins for markdown elements within tasks - Override general styles */
 .task-description .markdown-content h1,
 .task-description .markdown-content h2,
 .task-description .markdown-content h3,
 .task-description .markdown-content h4,
 .task-description .markdown-content h5,
 .task-description .markdown-content h6 {
-  margin: 8px 0 4px 0;
-  font-size: 1em;
+  margin: 8px 0 4px 0 !important;
+  font-size: 1em !important;
   font-weight: 600;
-  border-bottom: none;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .task-description .markdown-content p {
-  margin: 4px 0;
+  margin: 4px 0 !important;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .task-description .markdown-content ul,
 .task-description .markdown-content ol {
-  margin: 4px 0;
-  padding-left: 16px;
+  margin: 4px 0 !important;
+  padding-left: 16px !important;
 }
 
 .task-description .markdown-content li {
-  margin: 2px 0;
+  margin: 2px 0 !important;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .task-description .markdown-content blockquote {
-  margin: 4px 0;
-  padding-left: 12px;
-  border-left-width: 3px;
+  margin: 4px 0 !important;
+  padding-left: 12px !important;
+  border-left-width: 3px !important;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 .task-description .markdown-content code {
   font-size: 0.9em;
-  padding: 1px 4px;
+  padding: 1px 4px !important;
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap;
 }
 
 .task-description .markdown-content pre {
-  margin: 8px 0;
-  padding: 8px;
+  margin: 8px 0 !important;
+  padding: 8px !important;
   font-size: 0.85em;
   overflow-x: auto;
   white-space: pre-wrap;
@@ -1488,6 +1481,84 @@ body {
 .markdown-table th {
   background: var(--bg-secondary);
   font-weight: 600;
+}
+
+/* TASK-SPECIFIC MARKDOWN OVERRIDES - Must come after general markdown styles */
+.task-description .markdown-content {
+  line-height: 1.4 !important; /* Tighter line height for tasks */
+}
+
+.task-description .markdown-content h1,
+.task-description .markdown-content h2,
+.task-description .markdown-content h3,
+.task-description .markdown-content h4,
+.task-description .markdown-content h5,
+.task-description .markdown-content h6 {
+  margin: 8px 0 4px 0 !important;
+  font-size: 1em !important;
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+}
+
+.task-description .markdown-content p {
+  margin: 4px 0 !important;
+}
+
+/* AGGRESSIVE LIST SPACING RESET FOR TASKS */
+.task-description .markdown-content ul,
+.task-description .markdown-content ol {
+  margin: 2px 0 !important;
+  padding-left: 16px !important;
+  line-height: 1.2 !important;
+}
+
+.task-description .markdown-content li {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+}
+
+/* Extra specific overrides for stubborn list spacing */
+.task-description .markdown-content ul li,
+.task-description .markdown-content ol li {
+  margin: 0 !important;
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+  padding: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.task-description .markdown-content ul li p,
+.task-description .markdown-content ol li p {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  display: inline !important;
+}
+
+/* Reset any nested list spacing */
+.task-description .markdown-content ul ul,
+.task-description .markdown-content ul ol,
+.task-description .markdown-content ol ul,
+.task-description .markdown-content ol ol {
+  margin: 0 !important;
+  padding-left: 16px !important;
+}
+
+.task-description .markdown-content blockquote {
+  margin: 4px 0 !important;
+  padding-left: 12px !important;
+}
+
+.task-description .markdown-content pre {
+  margin: 8px 0 !important;
+  padding: 8px !important;
+}
+
+.task-description .markdown-content code {
+  padding: 1px 4px !important;
 }
 
 /* Instructions Component Styles */
