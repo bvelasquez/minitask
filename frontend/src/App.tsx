@@ -11,6 +11,7 @@ import { NoteFullView } from './components/NoteFullView';
 import { TaskRoute } from './components/TaskRoute';
 import { NoteRoute } from './components/NoteRoute';
 import { Instructions } from './components/Instructions';
+import { TagLegend } from './components/TagLegend';
 
 type TabType = 'tasks' | 'notes';
 
@@ -226,6 +227,9 @@ function Dashboard() {
       <header className="header">
         <h1>Task & Notes Dashboard</h1>
         <p>Manage your tasks and notes with ease</p>
+        <div className="header-actions">
+          <TagLegend />
+        </div>
       </header>
 
       {error && (

@@ -73,6 +73,7 @@ body {
   text-align: center;
   margin-bottom: 40px;
   color: white;
+  position: relative;
 }
 
 .header h1 {
@@ -84,6 +85,28 @@ body {
 .header p {
   font-size: 1.1rem;
   opacity: 0.9;
+}
+
+.header-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.header-actions .tag-legend-button {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  backdrop-filter: blur(10px);
+}
+
+.header-actions .tag-legend-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
 }
 
 .theme-toggle {
@@ -447,30 +470,482 @@ body {
   position: absolute;
   top: 8px;
   left: 0;
+  right: 120px; /* Leave space for action buttons */
+  z-index: 5; /* Lower than task-actions to ensure buttons are clickable */
+}
+
+.task-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.task-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.3;
+  flex: 1;
+  min-width: 0; /* Allow text to shrink */
+}
+
+/* Task Tags Row - separate from title */
+.task-tags-row {
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
+}
+
+/* Task Tags */
+.task-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  z-index: 6; /* Higher than header but lower than actions */
+  position: relative;
+}
+
+.task-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.task-tag svg {
+  flex-shrink: 0;
+}
+
+/* Tag-specific styling for task items */
+.task-item.tagged {
+  position: relative;
+}
+
+/* Blocked tasks - Red styling */
+.task-item.tagged-blocked {
+  border-left: 4px solid #dc2626 !important;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, var(--bg-secondary) 20%);
+}
+
+.task-item.tagged-blocked:hover {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, var(--bg-tertiary) 20%);
+}
+
+.task-item.tagged-blocked .task-title {
+  color: #dc2626;
+}
+
+/* Needs Review tasks - Yellow/Orange styling */
+.task-item.tagged-needs-review {
+  border-left: 4px solid #f59e0b !important;
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.05) 0%, var(--bg-secondary) 20%);
+}
+
+.task-item.tagged-needs-review:hover {
+  background: linear-gradient(90deg, rgba(251, 191, 36, 0.08) 0%, var(--bg-tertiary) 20%);
+}
+
+.task-item.tagged-needs-review .task-title {
+  color: #d97706;
+}
+
+/* Urgent tasks - Dark Red styling */
+.task-item.tagged-urgent {
+  border-left: 4px solid #b91c1c !important;
+  background: linear-gradient(90deg, rgba(220, 38, 38, 0.05) 0%, var(--bg-secondary) 20%);
+}
+
+.task-item.tagged-urgent:hover {
+  background: linear-gradient(90deg, rgba(220, 38, 38, 0.08) 0%, var(--bg-tertiary) 20%);
+}
+
+.task-item.tagged-urgent .task-title {
+  color: #b91c1c;
+}
+
+/* In Progress tasks - Blue styling */
+.task-item.tagged-in-progress {
+  border-left: 4px solid #2563eb !important;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, var(--bg-secondary) 20%);
+}
+
+.task-item.tagged-in-progress:hover {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.08) 0%, var(--bg-tertiary) 20%);
+}
+
+.task-item.tagged-in-progress .task-title {
+  color: #2563eb;
+}
+
+/* Waiting tasks - Gray styling */
+.task-item.tagged-waiting {
+  border-left: 4px solid #9ca3af !important;
+  background: linear-gradient(90deg, rgba(209, 213, 219, 0.05) 0%, var(--bg-secondary) 20%);
+}
+
+.task-item.tagged-waiting:hover {
+  background: linear-gradient(90deg, rgba(209, 213, 219, 0.08) 0%, var(--bg-tertiary) 20%);
+}
+
+.task-item.tagged-waiting .task-title {
+  color: #6b7280;
+}
+
+/* Low Priority tasks - Light Gray styling */
+.task-item.tagged-low-priority {
+  border-left: 4px solid #d1d5db !important;
+  background: linear-gradient(90deg, rgba(229, 231, 235, 0.05) 0%, var(--bg-secondary) 20%);
+}
+
+.task-item.tagged-low-priority:hover {
+  background: linear-gradient(90deg, rgba(229, 231, 235, 0.08) 0%, var(--bg-tertiary) 20%);
+}
+
+.task-item.tagged-low-priority .task-title {
+  color: #9ca3af;
+}
+
+/* Research tasks - Purple styling */
+.task-item.tagged-research {
+  border-left: 4px solid #7c3aed !important;
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, var(--bg-secondary) 20%);
+}
+
+.task-item.tagged-research:hover {
+  background: linear-gradient(90deg, rgba(139, 92, 246, 0.08) 0%, var(--bg-tertiary) 20%);
+}
+
+.task-item.tagged-research .task-title {
+  color: #7c3aed;
+}
+
+/* Bug tasks - Red styling (similar to blocked but distinct) */
+.task-item.tagged-bug {
+  border-left: 4px solid #dc2626 !important;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, var(--bg-secondary) 20%);
+}
+
+.task-item.tagged-bug:hover {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, var(--bg-tertiary) 20%);
+}
+
+.task-item.tagged-bug .task-title {
+  color: #dc2626;
+}
+
+/* Feature tasks - Green styling */
+.task-item.tagged-feature {
+  border-left: 4px solid #059669 !important;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, var(--bg-secondary) 20%);
+}
+
+.task-item.tagged-feature:hover {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, var(--bg-tertiary) 20%);
+}
+
+.task-item.tagged-feature .task-title {
+  color: #059669;
+}
+
+/* Completed tasks override tag styling */
+.task-item.completed.tagged {
+  border-left: 4px solid var(--text-muted) !important;
+  background: var(--bg-primary) !important;
+}
+
+.task-item.completed.tagged .task-title {
+  color: var(--text-muted) !important;
+  opacity: 0.8;
+}
+
+.task-item.completed .task-tag {
+  opacity: 0.6;
+  filter: grayscale(0.3);
+}
+
+/* Dark theme adjustments for tags */
+.dark .task-tag {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Tag Legend Styles */
+.tag-legend-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-legend-button:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.tag-legend-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.tag-legend-modal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative; /* Ensure proper positioning */
+  margin: auto; /* Center the modal */
+}
+
+.tag-legend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+}
+
+.tag-legend-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.tag-legend-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.tag-legend-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.tag-legend-content {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(80vh - 80px);
+}
+
+.tag-legend-intro {
+  margin: 0 0 20px 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.tag-legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.tag-legend-item {
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.tag-legend-item:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-hover);
+}
+
+.tag-legend-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.tag-legend-sample {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.tag-legend-priority {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.tag-legend-description {
+  margin: 0 0 8px 0;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-size: 0.9rem;
+}
+
+.tag-legend-example {
+  display: block;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.tag-legend-tips {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.tag-legend-tips h4 {
+  margin: 0 0 12px 0;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tag-legend-tips ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.tag-legend-tips li {
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+/* Dark theme adjustments for legend */
+.dark .tag-legend-sample {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive design for legend */
+@media (max-width: 768px) {
+  .header-actions {
+    position: static;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  
+  .tag-legend-overlay {
+    padding: 10px;
+  }
+  
+  .tag-legend-modal {
+    max-height: 90vh;
+  }
+  
+  .tag-legend-header {
+    padding: 16px 20px 12px;
+  }
+  
+  .tag-legend-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .tag-legend-content {
+    padding: 20px;
+    max-height: calc(90vh - 70px);
+  }
+  
+  .tag-legend-item {
+    padding: 12px;
+  }
+  
+  .tag-legend-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .tag-legend-example {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+}
+
+/* Responsive design for tags */
+@media (max-width: 768px) {
+  .task-header {
+    right: 80px; /* Less space for actions on mobile */
+  }
+  
+  .task-title-row {
+    margin-bottom: 2px;
+  }
+  
+  .task-tags-row {
+    margin-top: 1px;
+  }
+  
+  .task-tags {
+    gap: 3px;
+  }
+  
+  .task-tag {
+    font-size: 0.65rem;
+    padding: 1px 4px;
+  }
+}
   z-index: 2;
   pointer-events: none;
 }
 
-.task-title {
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--bg-secondary);
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  max-width: calc(100% - 120px); /* Leave space for action buttons */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.task-item.completed .task-title {
-  color: var(--text-muted);
-  opacity: 0.8;
-}
+/* Removed duplicate task-title styles - using the ones defined in the task header section above */
 
 .task-description {
   font-size: 14px;
@@ -649,13 +1124,13 @@ body {
 
 .task-textarea {
   resize: vertical;
-  min-height: 60px;
+  min-height: 120px;
   font-family: inherit;
   line-height: 1.4;
 }
 
 .input.task-textarea {
-  min-height: 80px;
+  min-height: 140px;
   resize: vertical;
 }
 
@@ -674,6 +1149,7 @@ body {
   right: 0;
   flex-wrap: wrap;
   align-items: center;
+  /* Removed max-width constraint that was squashing buttons */
 }
 
 /* Action group and divider styles */

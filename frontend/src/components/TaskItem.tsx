@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Trash2, Edit, GripVertical, Copy, Download, Bot, ChevronDown, ChevronUp, FileText, ExternalLink, Link, ArrowUp, ArrowDown } from 'lucide-react';
+import { Trash2, Edit, GripVertical, Copy, Download, Bot, ChevronDown, ChevronUp, FileText, ExternalLink, Link, ArrowUp, ArrowDown, Tag } from 'lucide-react';
 import { Task } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { getPrimaryTag, getAllTags } from '../utils/taskTags';
 
 interface TaskItemProps {
   task: Task;
@@ -22,6 +23,10 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
   const [isExpanded, setIsExpanded] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Extract tags from task description
+  const primaryTag = getPrimaryTag(task.description);
+  const allTags = getAllTags(task.description);
+
   const {
     attributes,
     listeners,
@@ -31,9 +36,15 @@ export const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onDelete, on
     isDragging,
   } = useSortable({ id: task.id });
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
+    // Apply primary tag styling if present
+    ...(primaryTag && !task.completed && {
+      borderLeftColor: primaryTag.borderColor,
+      borderLeftWidth: '4px',
+      borderLeftStyle: 'solid' as const,
+    })
   };
 
   // Focus input when entering edit mode
@@ -336,7 +347,7 @@ Please help me work on this task. Start by getting the current task details, the
     <div
       ref={setNodeRef}
       style={style}
-      className={`task-item ${isDragging ? 'dragging' : ''} ${isEditing ? 'editing' : ''} ${isExpanded ? 'expanded' : 'collapsed'} ${task.completed ? 'completed' : ''}`}
+      className={`task-item ${isDragging ? 'dragging' : ''} ${isEditing ? 'editing' : ''} ${isExpanded ? 'expanded' : 'collapsed'} ${task.completed ? 'completed' : ''} ${primaryTag ? `tagged tagged-${primaryTag.name.toLowerCase().replace(/\s+/g, '-')}` : ''}`}
       {...attributes}
     >
       {/* Drag handle - only this small area is draggable */}
@@ -367,7 +378,30 @@ Please help me work on this task. Start by getting the current task details, the
       <div className="task-content">
         {/* Task header */}
         <div className="task-header">
-          <span className="task-title">{extractTaskHeader(task.description)}</span>
+          <div className="task-title-row">
+            <span className="task-title">{extractTaskHeader(task.description)}</span>
+          </div>
+          {allTags.length > 0 && (
+            <div className="task-tags-row">
+              <div className="task-tags">
+                {allTags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="task-tag"
+                    style={{
+                      backgroundColor: tag.backgroundColor,
+                      color: tag.color,
+                      borderColor: tag.borderColor
+                    }}
+                    title={`Tag: ${tag.name}`}
+                  >
+                    <Tag size={10} />
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Action buttons positioned at top-right inside content */}
