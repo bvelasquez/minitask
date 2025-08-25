@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Plus, StickyNote } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Plus, StickyNote, Upload } from 'lucide-react';
 import { Note } from '../types';
 import { NoteItem } from './NoteItem';
 import { NoteModal } from './NoteModal';
@@ -28,6 +28,7 @@ export const NoteList: React.FC<NoteListProps> = ({
   const [newNoteContent, setNewNoteContent] = useState('');
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddNote = () => {
     if (newNoteContent.trim()) {
@@ -53,6 +54,46 @@ export const NoteList: React.FC<NoteListProps> = ({
     onSearchNotes(query);
   };
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check if it's a markdown file
+    const isMarkdown = file.name.toLowerCase().endsWith('.md') || 
+                      file.name.toLowerCase().endsWith('.markdown') ||
+                      file.type === 'text/markdown';
+
+    if (!isMarkdown) {
+      alert('Please select a markdown file (.md or .markdown)');
+      return;
+    }
+
+    try {
+      const content = await file.text();
+      if (content.trim()) {
+        // Add a header with the filename if the content doesn't start with a header
+        const hasHeader = content.trim().startsWith('#');
+        const noteContent = hasHeader 
+          ? content 
+          : `# ${file.name.replace(/\.(md|markdown)$/i, '')}\n\n${content}`;
+        
+        onAddNote(noteContent.trim());
+        
+        // Reset the file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    } catch (error) {
+      console.error('Error reading file:', error);
+      alert('Error reading the markdown file. Please try again.');
+    }
+  };
+
   return (
     <section className="section">
       <div className="section-header">
@@ -60,14 +101,33 @@ export const NoteList: React.FC<NoteListProps> = ({
           <StickyNote size={20} />
           Notes
         </h2>
-        <button
-          className="btn btn-primary btn-small"
-          onClick={() => setShowInput(true)}
-        >
-          <Plus size={16} />
-          Add Note
-        </button>
+        <div className="section-actions">
+          <button
+            className="btn btn-secondary btn-small"
+            onClick={handleImportClick}
+            title="Import markdown file"
+          >
+            <Upload size={16} />
+            Import
+          </button>
+          <button
+            className="btn btn-primary btn-small"
+            onClick={() => setShowInput(true)}
+          >
+            <Plus size={16} />
+            Add Note
+          </button>
+        </div>
       </div>
+
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".md,.markdown,text/markdown"
+        onChange={handleFileImport}
+        style={{ display: 'none' }}
+      />
 
       <SearchInput
         value={searchQuery}

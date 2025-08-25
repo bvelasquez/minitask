@@ -166,7 +166,7 @@ export const TaskList: React.FC<TaskListProps> = ({
             onChange={(e) => setNewTaskDescription(e.target.value)}
             onKeyDown={handleKeyPress}
             autoFocus
-            rows={3}
+            rows={12}
           />
           <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
             <button className="btn btn-primary btn-small" onClick={handleAddTask}>
