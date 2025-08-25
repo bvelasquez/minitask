@@ -14,9 +14,9 @@ const execAsync = promisify(exec);
 
 async function isWebServerHealthy(): Promise<boolean> {
   try {
-    const response = await fetch('http://localhost:3000/api/tasks', {
-      method: 'GET',
-      signal: AbortSignal.timeout(2000) // 2 second timeout
+    const response = await fetch("http://localhost:3020/api/tasks", {
+      method: "GET",
+      signal: AbortSignal.timeout(2000), // 2 second timeout
     });
     return response.ok;
   } catch (error) {
@@ -146,15 +146,15 @@ async function main() {
       process.exit(1);
     }
     
-    console.error('Web dashboard available at: http://localhost:3000');
+    console.error("Web dashboard available at: http://localhost:3020");
     
     // Now create MCP server that will use the web server's API
-    const mcpServer = new TaskNotesMCPServer('http://localhost:3000/api');
+    const mcpServer = new TaskNotesMCPServer("http://localhost:3020/api");
     
     // Optionally auto-open dashboard (can be disabled with --no-browser flag)
     if (!args.includes('--no-browser')) {
       const forceBrowser = args.includes('--force-browser');
-      await openDashboardIfNeeded('http://localhost:3000', forceBrowser);
+      await openDashboardIfNeeded("http://localhost:3020", forceBrowser);
     }
     
     process.on('SIGINT', () => {
@@ -181,7 +181,7 @@ async function main() {
     console.log('Starting Task Notes Server with Web Dashboard...');
     
     const db = new Database();
-    const webServer = new WebServer(db, 3000);
+    const webServer = new WebServer(db, 3020);
     
     // Start web server
     await webServer.start();

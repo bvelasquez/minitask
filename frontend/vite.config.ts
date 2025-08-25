@@ -5,16 +5,16 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: '../public',
+    outDir: "../public",
     emptyOutDir: true,
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:3000',
-      '/socket.io': {
-        target: 'http://localhost:3000',
+      "/api": "http://localhost:3020",
+      "/socket.io": {
+        target: "http://localhost:3020",
         ws: true,
       },
     },
   },
-})
+});

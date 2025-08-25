@@ -7,12 +7,12 @@ async function startStandaloneServer() {
   console.log('Starting Task Notes Web Server (standalone mode)...');
   
   const db = new Database();
-  const webServer = new WebServer(db, 3000);
+  const webServer = new WebServer(db, 3020);
   
   try {
     await webServer.start();
-    console.log('Task Notes Web Server is running at: http://localhost:3000');
-    console.log('Dashboard available at: http://localhost:3000');
+    console.log("Task Notes Web Server is running at: http://localhost:3020");
+    console.log("Dashboard available at: http://localhost:3020");
     console.log('Press Ctrl+C to stop the server');
     
     // Handle graceful shutdown

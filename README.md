@@ -5,12 +5,14 @@ A modern MCP (Model Context Protocol) server for task and notes management with 
 ## Features
 
 ### MCP Tools for LLMs
+
 - **Task Management**: Add, update, delete, reorder, and list tasks
 - **Notes Management**: Add, update, delete, search, and list notes with Markdown support
 - **Persistent Storage**: SQLite database for reliable data persistence
 - **Rich Context**: Clear tool descriptions help LLMs understand when and how to use each tool
 
 ### Web Dashboard
+
 - **Clean Interface**: Modern, responsive design
 - **Task Features**: Checkbox completion, drag-and-drop reordering, multi-line support, clickable links, creation dates
 - **Notes Features**: Markdown rendering, search functionality, edit modal
@@ -20,11 +22,12 @@ A modern MCP (Model Context Protocol) server for task and notes management with 
 
 1. **Clone or create the project directory**
 2. **Install dependencies**:
+
    ```bash
    npm install
    ```
-
 3. **Build the TypeScript code**:
+
    ```bash
    npm run build
    ```
@@ -32,6 +35,7 @@ A modern MCP (Model Context Protocol) server for task and notes management with 
 ## Usage
 
 ### Web Dashboard Mode (Default)
+
 Start the server with integrated web dashboard:
 ```bash
 npm start
@@ -42,6 +46,7 @@ npm run dev  # for development with auto-reload
 The dashboard will automatically open at `http://localhost:3000/dashboard`
 
 ### MCP Server Mode
+
 To use as an MCP server for LLM integration:
 ```bash
 npm run build
@@ -54,13 +59,12 @@ NODE_ENV=mcp npm start
 ```
 
 #### Browser Management Options
+
 - `--no-browser` - Disable automatic browser opening
 - `--force-browser` - Force open browser even if already detected as open
 - `--clear-browser-lock` - Clear the browser lock file and exit (useful for troubleshooting)
 
 The server automatically detects if the dashboard is already open in a browser tab to avoid opening duplicate tabs. It uses a lock file with timestamp and process validation to track browser state. If you need to force open a new tab, use the `--force-browser` flag.
-
-
 
 ## MCP Integration
 
@@ -86,6 +90,7 @@ Add this server to your MCP client configuration (e.g., `mcp-config.json`):
 ### Available MCP Tools
 
 #### Task Management
+
 - `list_tasks` - Get all tasks with completion status and metadata
 - `add_task` - Create a new task with description and optional order
 - `update_task` - Modify task description, completion status, or order
@@ -93,6 +98,7 @@ Add this server to your MCP client configuration (e.g., `mcp-config.json`):
 - `reorder_tasks` - Reorganize multiple tasks by ID sequence
 
 #### Notes Management
+
 - `list_notes` - Get all notes in reverse chronological order
 - `add_note` - Create a new note with Markdown content
 - `update_note` - Edit existing note content
@@ -100,11 +106,13 @@ Add this server to your MCP client configuration (e.g., `mcp-config.json`):
 - `search_notes` - Find notes containing specific text
 
 #### Server Management
+
 - `restart_server` - Restart the PM2-managed web server (useful after code changes)
 
 ## Database Schema
 
 ### Tasks Table
+
 - `id` - Primary key
 - `description` - Task description text
 - `completed` - Boolean completion status
@@ -113,6 +121,7 @@ Add this server to your MCP client configuration (e.g., `mcp-config.json`):
 - `updated_at` - Last modification timestamp
 
 ### Notes Table
+
 - `id` - Primary key
 - `content` - Note content in Markdown format
 - `created_at` - Creation timestamp
@@ -121,6 +130,7 @@ Add this server to your MCP client configuration (e.g., `mcp-config.json`):
 ## Development
 
 ### Project Structure
+
 ```
 ├── src/
 │   ├── index.ts          # Main entry point
@@ -136,12 +146,14 @@ Add this server to your MCP client configuration (e.g., `mcp-config.json`):
 ```
 
 ### Scripts
+
 - `npm run build` - Compile TypeScript to JavaScript
 - `npm run dev` - Development mode with auto-reload
 - `npm start` - Start the built server
 - `npm run clean` - Remove compiled files
 
 ### API Endpoints
+
 The web server exposes REST API endpoints that mirror the MCP tools:
 
 - `GET /api/tasks` - List all tasks
@@ -149,7 +161,6 @@ The web server exposes REST API endpoints that mirror the MCP tools:
 - `PUT /api/tasks/:id` - Update task
 - `DELETE /api/tasks/:id` - Delete task
 - `POST /api/tasks/reorder` - Reorder tasks
-
 - `GET /api/notes` - List all notes
 - `POST /api/notes` - Create new note
 - `PUT /api/notes/:id` - Update note
@@ -161,12 +172,14 @@ The web server exposes REST API endpoints that mirror the MCP tools:
 Tasks now support multiple lines of text for better organization:
 
 ### In the Web Dashboard
+
 - **Creating Tasks**: Use `Shift+Enter` to add new lines, `Enter` to save
 - **Editing Tasks**: Click edit button, use `Shift+Enter` for new lines, `Enter` to save
 - **Display**: Multi-line tasks are displayed with proper line breaks
 - **Clickable Links**: URLs (http, https, www) are automatically converted to clickable links that open in new tabs
 
 ### Via MCP/LLM
+
 Multi-line tasks work seamlessly through the MCP interface:
 ```
 "Add a task with multiple steps:
@@ -178,16 +191,19 @@ Multi-line tasks work seamlessly through the MCP interface:
 ## Example LLM Interactions
 
 ### Adding Tasks
+
 > "Add a task to buy groceries"
 
 The LLM will use the `add_task` tool with description "Buy groceries"
 
 ### Managing Notes
+
 > "Save a note about the meeting agenda: discuss budget, review timeline, assign tasks"
 
 The LLM will use the `add_note` tool with the meeting content in Markdown format
 
 ### Searching Information
+
 > "Find my notes about the budget"
 
 The LLM will use the `search_notes` tool with query "budget"

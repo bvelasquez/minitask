@@ -10,9 +10,9 @@ const execAsync = promisify(exec);
 
 async function isWebServerHealthy() {
   try {
-    const response = await fetch('http://localhost:3000/api/tasks', {
-      method: 'GET',
-      signal: AbortSignal.timeout(2000) // 2 second timeout
+    const response = await fetch("http://localhost:3020/api/tasks", {
+      method: "GET",
+      signal: AbortSignal.timeout(2000), // 2 second timeout
     });
     return response.ok;
   } catch (error) {
