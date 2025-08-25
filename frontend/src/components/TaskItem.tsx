@@ -251,10 +251,18 @@ ${task.description}`;
 - Description: ${task.description}
 
 **Instructions:**
-1. Use the \`list_tasks\` MCP tool to see all current tasks
-2. Use the \`update_task\` MCP tool if you need to modify the task (mark complete, update description, etc.)
+1. First, use the \`list_tasks\` MCP tool to see all current tasks and get the latest task details
+2. Analyze the task description carefully to understand what needs to be done
 3. If this task requires code changes, file operations, or other work, please help me complete it
-4. If you need more context about the task or project, feel free to ask questions
+4. Use the \`update_task\` MCP tool to modify the task (mark complete, update description, etc.) when appropriate
+
+**Important Guidelines:**
+- **Keep changes to minimum**: Only make necessary changes, don't over-engineer or add unnecessary features
+- **Don't assume**: If the task description is unclear or ambiguous, ask clarifying questions before proceeding
+- **Ask questions**: If you need more context about the task, project structure, or requirements, please ask
+- **Be conservative**: When in doubt, ask for confirmation before making significant changes
+- **Explain your approach**: Before implementing, explain what you plan to do and why
+- **Test carefully**: If making code changes, ensure they work correctly and don't break existing functionality
 
 **Available MCP Tools:**
 - \`list_tasks\` - Get all tasks with completion status and metadata
@@ -263,7 +271,7 @@ ${task.description}`;
 - \`delete_task\` - Remove a task permanently
 - \`reorder_tasks\` - Reorganize multiple tasks by ID sequence
 
-Please help me work on this task. If you can complete it or make progress, please update the task status accordingly using the MCP tools.`;
+Please help me work on this task. Start by getting the current task details, then ask any clarifying questions you need before proceeding. Update the task status using MCP tools when you make progress or complete it.`;
 
     try {
       await navigator.clipboard.writeText(aiPrompt);

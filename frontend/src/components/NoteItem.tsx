@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2, Maximize2, ExternalLink, Link } from 'lucide-react';
+import { Edit, Trash2, Maximize2, ExternalLink, Link, Copy, Download } from 'lucide-react';
 import { Note } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
@@ -67,6 +67,34 @@ export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete, onEx
     }
   };
 
+  const handleCopyMarkdown = async () => {
+    try {
+      await navigator.clipboard.writeText(note.content);
+      console.log('Note markdown copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = note.content;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const handleDownloadMarkdown = () => {
+    const blob = new Blob([note.content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `note-${note.id}-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="note-item fade-in">
       <div className="note-header">
@@ -94,10 +122,24 @@ export const NoteItem: React.FC<NoteItemProps> = ({ note, onEdit, onDelete, onEx
           )}
           <button
             className="btn btn-secondary btn-small btn-icon"
+            onClick={handleCopyMarkdown}
+            title="Copy markdown to clipboard"
+          >
+            <Copy size={14} />
+          </button>
+          <button
+            className="btn btn-secondary btn-small btn-icon"
             onClick={handleCopyLink}
             title="Copy note link"
           >
             <Link size={14} />
+          </button>
+          <button
+            className="btn btn-secondary btn-small btn-icon"
+            onClick={handleDownloadMarkdown}
+            title="Download as markdown file"
+          >
+            <Download size={14} />
           </button>
           <button
             className="btn btn-primary btn-small btn-icon"

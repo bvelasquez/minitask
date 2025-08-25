@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Edit, Trash2, Save, AlertTriangle } from 'lucide-react';
+import { X, Edit, Trash2, Save, AlertTriangle, Copy, Download, Link } from 'lucide-react';
 import { Note } from '../types';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
@@ -51,6 +51,44 @@ export const NoteFullView: React.FC<NoteFullViewProps> = ({
     onClose();
   };
 
+  const handleCopyMarkdown = async () => {
+    try {
+      await navigator.clipboard.writeText(note.content);
+      console.log('Note markdown copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = note.content;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      const link = `${window.location.origin}/note/${note.id}`;
+      await navigator.clipboard.writeText(link);
+      console.log('Note link copied to clipboard');
+    } catch (err) {
+      console.error('Failed to copy link to clipboard:', err);
+    }
+  };
+
+  const handleDownloadMarkdown = () => {
+    const blob = new Blob([note.content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `note-${note.id}-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       if (isEditing) {
@@ -76,13 +114,39 @@ export const NoteFullView: React.FC<NoteFullViewProps> = ({
           <h2 className="modal-title">Note #{note.id}</h2>
           <div className="modal-actions">
             {!isEditing && (
-              <button
-                className="btn btn-primary btn-small"
-                onClick={() => setIsEditing(true)}
-              >
-                <Edit size={16} />
-                Edit
-              </button>
+              <>
+                <button
+                  className="btn btn-secondary btn-small"
+                  onClick={handleCopyMarkdown}
+                  title="Copy markdown to clipboard"
+                >
+                  <Copy size={16} />
+                  Copy
+                </button>
+                <button
+                  className="btn btn-secondary btn-small"
+                  onClick={handleCopyLink}
+                  title="Copy note link"
+                >
+                  <Link size={16} />
+                  Link
+                </button>
+                <button
+                  className="btn btn-secondary btn-small"
+                  onClick={handleDownloadMarkdown}
+                  title="Download as markdown file"
+                >
+                  <Download size={16} />
+                  Download
+                </button>
+                <button
+                  className="btn btn-primary btn-small"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Edit size={16} />
+                  Edit
+                </button>
+              </>
             )}
             {isEditing && (
               <>
