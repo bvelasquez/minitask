@@ -21,16 +21,31 @@ A modern MCP (Model Context Protocol) server for task and notes management with 
 ## Installation
 
 1. **Clone or create the project directory**
-2. **Install dependencies**:
+2. **Install PM2 globally**:
+
+   ```bash
+   npm install -g pm2
+   ```
+
+3. **Install dependencies**:
 
    ```bash
    npm install
    ```
-3. **Build the TypeScript code**:
+
+4. **Build the TypeScript code**:
 
    ```bash
    npm run build
    ```
+
+5. **Start the server with PM2**:
+
+   ```bash
+   npm run server:start
+   ```
+
+6. **Start the MCP server** (add to your MCP config as shown below)
 
 ## Usage
 
@@ -67,6 +82,16 @@ NODE_ENV=mcp npm start
 The server automatically detects if the dashboard is already open in a browser tab to avoid opening duplicate tabs. It uses a lock file with timestamp and process validation to track browser state. If you need to force open a new tab, use the `--force-browser` flag.
 
 ## MCP Integration
+
+### Quick Start for MCP
+
+After installation, your MCP server is ready to use:
+
+1. **Ensure PM2 server is running**: `npm run server:start`
+2. **Add to your MCP configuration** (see configuration example below)
+3. **The MCP server will automatically connect** when called by your MCP client
+
+The PM2 server runs the web dashboard on port 3020, while the MCP server uses the configuration you specify in your MCP client.
 
 ### Adding to MCP Client Configuration
 
