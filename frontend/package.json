@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && cd .. && pm2 restart task-notes-server",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -61,15 +61,17 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
         rehypePlugins={[rehypeRaw]}
         components={{
           code({ node, className, children, ...props }: any) {
-            const match = /language-(\w+)/.exec(className || '');
-            const language = match ? match[1] : '';
-            
-            const isInline = !className || !className.includes('language-');
-            
-            if (!isInline && language === 'mermaid') {
-              return <MermaidDiagram chart={String(children).replace(/\n$/, '')} />;
+            const match = /language-(\w+)/.exec(className || "");
+            const language = match ? match[1] : "";
+
+            const isInline = !className || !className.includes("language-");
+
+            if (!isInline && language === "mermaid") {
+              return (
+                <MermaidDiagram chart={String(children).replace(/\n$/, "")} />
+              );
             }
-            
+
             return (
               <code className={className} {...props}>
                 {children}
@@ -77,6 +79,41 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, cla
             );
           },
           a: LinkRenderer,
+          // Handle task list items properly
+          ul: ({ node, className, children, ...props }: any) => {
+            const hasTaskListItem = node?.children?.some((child: any) =>
+              child?.data?.hProperties?.className?.includes("task-list-item"),
+            );
+            return (
+              <ul
+                className={hasTaskListItem ? "contains-task-list" : ""}
+                {...props}
+              >
+                {children}
+              </ul>
+            );
+          },
+          li: ({ node, className, children, index, ...props }: any) => {
+            const hasTaskListItem =
+              node?.data?.hProperties?.className?.includes("task-list-item");
+            return (
+              <li
+                className={hasTaskListItem ? "task-list-item" : ""}
+                {...props}
+              >
+                {children}
+              </li>
+            );
+          },
+          // Handle task list input checkboxes
+          input: ({ node, className, type, checked, ...props }: any) => {
+            if (type === "checkbox") {
+              return (
+                <input type="checkbox" checked={checked} readOnly {...props} />
+              );
+            }
+            return <input type={type} className={className} {...props} />;
+          },
         }}
       >
         {content}

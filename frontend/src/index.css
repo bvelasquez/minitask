@@ -467,6 +467,129 @@ body {
   cursor: pointer;
 }
 
+/* GitHub Flavored Markdown Task List Styles */
+.markdown-content ul.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.markdown-content ul li.task-list-item {
+  list-style: none;
+  padding-left: 0;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+/* Reset the general ul styles when it's a task list */
+.markdown-content ul.contains-task-list,
+.markdown-content ul:has(li.task-list-item) {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* Regular list items that are not task list items should keep their styles */
+.markdown-content ul li:not(.task-list-item) {
+  list-style: disc;
+  padding-left: 0;
+}
+
+.markdown-content ul li.task-list-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg-primary);
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.2s ease;
+}
+
+.markdown-content ul li.task-list-item input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.markdown-content ul li.task-list-item input[type="checkbox"]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -1px;
+  left: 2px;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.markdown-content ul li.task-list-item input[type="checkbox"]:hover {
+  border-color: var(--accent);
+}
+
+.markdown-content ul li.task-list-item .task-list-item-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg-primary);
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.2s ease;
+}
+
+.markdown-content ul li.task-list-item .task-list-item-checkbox[checked],
+.markdown-content ul li.task-list-item .task-list-item-checkbox:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.markdown-content ul li.task-list-item .task-list-item-checkbox[checked]::after,
+.markdown-content ul li.task-list-item .task-list-item-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -1px;
+  left: 2px;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.markdown-content ul li.task-list-item .task-list-item-checkbox:hover {
+  border-color: var(--accent);
+}
+
+/* Task-specific task list overrides */
+.task-description .markdown-content ul li.task-list-item {
+  margin: 2px 0 !important;
+  gap: 6px;
+}
+
+.task-description .markdown-content ul li.task-list-item input[type="checkbox"],
+.task-description .markdown-content ul li.task-list-item .task-list-item-checkbox {
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+}
+
+.task-description .markdown-content ul li.task-list-item input[type="checkbox"]:checked::after,
+.task-description .markdown-content ul li.task-list-item .task-list-item-checkbox:checked::after {
+  font-size: 10px;
+  left: 1px;
+  top: 0px;
+}
+
 .task-content {
   flex: 1;
 }
