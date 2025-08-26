@@ -1,6 +1,33 @@
 # Task & Notes MCP Server
 
-A modern MCP (Model Context Protocol) server for task and notes management with an integrated web dashboard. This server allows LLMs to manage tasks and notes while providing a clean web interface for human interaction.
+A modern MCP (Model Context Protocol) server for task and notes management with an integrated React web dashboard. This project provides a dual-mode architecture: a standalone web server managed by PM2 for the dashboard interface, and an MCP server that communicates with LLMs while using the web server's API for data operations.
+
+## Architecture
+
+### Dual-Mode Design
+
+This project uses a sophisticated dual-mode architecture:
+
+1. **PM2-Managed Web Server** (`standalone-web-server.ts`):
+   - Runs continuously via PM2 on port 3020
+   - Serves the React frontend dashboard 
+   - Provides REST API endpoints
+   - Handles WebSocket connections for real-time updates
+   - Independent of MCP server lifecycle
+
+2. **MCP Server** (`mcp-server.ts`):
+   - Communicates with LLMs via stdio protocol
+   - Makes HTTP requests to the web server's API
+   - Ensures web server is running before starting
+   - Can auto-restart web server if needed
+
+### Component Overview
+
+- **Frontend**: React TypeScript application with Vite build system
+- **Backend**: Express.js server with Socket.io for real-time updates
+- **Database**: SQLite for persistent storage
+- **Process Management**: PM2 for web server lifecycle
+- **MCP Protocol**: SDK-based implementation for LLM communication
 
 ## Features
 
@@ -13,10 +40,12 @@ A modern MCP (Model Context Protocol) server for task and notes management with 
 
 ### Web Dashboard
 
-- **Clean Interface**: Modern, responsive design
+- **Modern React Interface**: TypeScript-based frontend with Vite bundling
+- **Real-time Updates**: WebSocket integration for live synchronization
 - **Task Features**: Checkbox completion, drag-and-drop reordering, multi-line support, clickable links, creation dates
-- **Notes Features**: Markdown rendering, search functionality, edit modal
-- **Auto-Launch**: Dashboard opens automatically when server starts
+- **Notes Features**: Markdown rendering, search functionality, edit modal, tag support
+- **Theme Support**: Dark/light mode toggle with persistence
+- **Responsive Design**: Works on desktop and mobile devices
 
 ## Installation
 
@@ -49,37 +78,42 @@ A modern MCP (Model Context Protocol) server for task and notes management with 
 
 ## Usage
 
-### Web Dashboard Mode (Default)
+### Quick Start
 
-Start the server with integrated web dashboard:
+1. **Start the PM2-managed web server:**
+   ```bash
+   npm run server:start
+   ```
+   This starts the standalone web server at `http://localhost:3020`
+
+2. **Access the dashboard:**
+   - Open `http://localhost:3020` in your browser
+   - The React frontend provides the full task and notes interface
+
+3. **Use the MCP server:**
+   - Configure your MCP client to connect (see MCP Integration section)
+   - The MCP server will automatically ensure the web server is running
+   - All MCP operations use the web server's API
+
+### Development Mode
+
+For development with auto-reload:
 ```bash
-npm start
-# or
-npm run dev  # for development with auto-reload
+npm run dev
 ```
 
-The dashboard will automatically open at `http://localhost:3000/dashboard`
+### Available npm Scripts
 
-### MCP Server Mode
-
-To use as an MCP server for LLM integration:
-```bash
-npm run build
-node dist/index.js --mcp
-```
-
-Or set the environment variable:
-```bash
-NODE_ENV=mcp npm start
-```
-
-#### Browser Management Options
-
-- `--no-browser` - Disable automatic browser opening
-- `--force-browser` - Force open browser even if already detected as open
-- `--clear-browser-lock` - Clear the browser lock file and exit (useful for troubleshooting)
-
-The server automatically detects if the dashboard is already open in a browser tab to avoid opening duplicate tabs. It uses a lock file with timestamp and process validation to track browser state. If you need to force open a new tab, use the `--force-browser` flag.
+- `npm run build` - Build both frontend and backend
+- `npm run build:frontend` - Build only the React frontend
+- `npm run build:backend` - Build only the TypeScript backend
+- `npm run dev` - Development mode with auto-reload
+- `npm run dev:frontend` - Frontend development server only
+- `npm run server:start` - Start PM2-managed web server
+- `npm run server:stop` - Stop PM2 web server
+- `npm run server:restart` - Restart PM2 web server
+- `npm run server:status` - Check PM2 server status
+- `npm run server:logs` - View PM2 server logs
 
 ## MCP Integration
 
@@ -95,18 +129,26 @@ The PM2 server runs the web dashboard on port 3020, while the MCP server uses th
 
 ### Adding to MCP Client Configuration
 
-Add this server to your MCP client configuration (e.g., `mcp-config.json`):
+Add this server to your MCP client configuration file:
 
 ```json
 {
-  "mcpServers": {
-    "task-notes": {
+  "servers": {
+    "task-mcp": {
       "command": "node",
-      "args": ["dist/index.js", "--mcp"],
-      "cwd": "/path/to/task-notes-mcp-server",
-      "env": {
-        "NODE_ENV": "mcp"
-      }
+      "args": [
+        "/Users/barryvelasquez/projects/minitask/dist/index.js",
+        "--mcp"
+      ],
+      "timeout": 60000,
+      "disabled": false,
+      "alwaysAllow": [
+        "list_tasks",
+        "create_task",
+        "get_task", 
+        "update_task",
+        "delete_task"
+      ]
     }
   }
 }
@@ -158,31 +200,35 @@ Add this server to your MCP client configuration (e.g., `mcp-config.json`):
 
 ```
 ├── src/
-│   ├── index.ts          # Main entry point
-│   ├── database.ts       # SQLite database layer
-│   ├── mcp-server.ts     # MCP protocol implementation
-│   └── web-server.ts     # Express web server
-├── public/
-│   ├── index.html        # Dashboard HTML
-│   ├── styles.css        # Dashboard styles
-│   └── app.js           # Dashboard JavaScript
-├── dist/                 # Compiled TypeScript output
-└── tasks_notes.db       # SQLite database file
+│   ├── index.ts                 # Main entry point with mode detection
+│   ├── database.ts              # SQLite database layer
+│   ├── mcp-server.ts            # MCP protocol implementation
+│   ├── standalone-web-server.ts # PM2-managed web server
+│   └── web-server.ts            # Express.js server with Socket.io
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx              # Main React application
+│   │   ├── components/          # React components
+│   │   ├── hooks/               # Custom React hooks  
+│   │   ├── services/            # API service layer
+│   │   ├── types/               # TypeScript type definitions
+│   │   └── utils/               # Utility functions
+│   ├── index.html               # Frontend entry point
+│   ├── package.json             # Frontend dependencies
+│   └── vite.config.ts           # Vite configuration
+├── public/                      # Built frontend assets (generated)
+├── dist/                        # Compiled TypeScript output (generated)
+├── ecosystem.config.cjs         # PM2 configuration
+├── tasks_notes.db              # SQLite database file (generated)
+└── package.json                # Main project configuration
 ```
-
-### Scripts
-
-- `npm run build` - Compile TypeScript to JavaScript
-- `npm run dev` - Development mode with auto-reload
-- `npm start` - Start the built server
-- `npm run clean` - Remove compiled files
 
 ### API Endpoints
 
-The web server exposes REST API endpoints that mirror the MCP tools:
+The web server exposes REST API endpoints that the MCP server uses:
 
 - `GET /api/tasks` - List all tasks
-- `POST /api/tasks` - Create new task
+- `POST /api/tasks` - Create new task  
 - `PUT /api/tasks/:id` - Update task
 - `DELETE /api/tasks/:id` - Delete task
 - `POST /api/tasks/reorder` - Reorder tasks
@@ -191,6 +237,14 @@ The web server exposes REST API endpoints that mirror the MCP tools:
 - `PUT /api/notes/:id` - Update note
 - `DELETE /api/notes/:id` - Delete note
 - `GET /api/notes/search?q=query` - Search notes
+
+### Build Process
+
+The build process handles both frontend and backend:
+
+1. **Frontend Build**: React app compiled with Vite to `/public`
+2. **Backend Build**: TypeScript compiled to `/dist`
+3. **PM2 Deployment**: Uses compiled `dist/standalone-web-server.js`
 
 ## Multi-line Task Support
 
@@ -215,23 +269,17 @@ Multi-line tasks work seamlessly through the MCP interface:
 
 ## Example LLM Interactions
 
-### Adding Tasks
-
 > "Add a task to buy groceries"
 
-The LLM will use the `add_task` tool with description "Buy groceries"
-
-### Managing Notes
+The LLM will use the `add_task` tool, which makes an HTTP POST to the web server's `/api/tasks` endpoint.
 
 > "Save a note about the meeting agenda: discuss budget, review timeline, assign tasks"
 
-The LLM will use the `add_note` tool with the meeting content in Markdown format
-
-### Searching Information
+The LLM will use the `add_note` tool, which makes an HTTP POST to the web server's `/api/notes` endpoint with Markdown content.
 
 > "Find my notes about the budget"
 
-The LLM will use the `search_notes` tool with query "budget"
+The LLM will use the `search_notes` tool, which queries the web server's `/api/notes/search` endpoint.
 
 ## License
 
