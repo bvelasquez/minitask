@@ -165,12 +165,12 @@ Please help me work on this task. If you can complete it or make progress, pleas
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSaveEdit();
-    } else if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       e.preventDefault();
       handleCancelEdit();
+    } else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      handleSaveEdit();
     }
   };
 

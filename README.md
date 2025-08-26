@@ -10,11 +10,10 @@ This project uses a sophisticated dual-mode architecture:
 
 1. **PM2-Managed Web Server** (`standalone-web-server.ts`):
    - Runs continuously via PM2 on port 3020
-   - Serves the React frontend dashboard 
+   - Serves the React frontend dashboard
    - Provides REST API endpoints
    - Handles WebSocket connections for real-time updates
    - Independent of MCP server lifecycle
-
 2. **MCP Server** (`mcp-server.ts`):
    - Communicates with LLMs via stdio protocol
    - Makes HTTP requests to the web server's API
@@ -55,25 +54,21 @@ This project uses a sophisticated dual-mode architecture:
    ```bash
    npm install -g pm2
    ```
-
 3. **Install dependencies**:
 
    ```bash
    npm install
    ```
-
 4. **Build the TypeScript code**:
 
    ```bash
    npm run build
    ```
-
 5. **Start the server with PM2**:
 
    ```bash
    npm run server:start
    ```
-
 6. **Start the MCP server** (add to your MCP config as shown below)
 
 ## Usage
@@ -81,15 +76,15 @@ This project uses a sophisticated dual-mode architecture:
 ### Quick Start
 
 1. **Start the PM2-managed web server:**
+
    ```bash
    npm run server:start
    ```
-   This starts the standalone web server at `http://localhost:3020`
 
+   This starts the standalone web server at `http://localhost:3020`
 2. **Access the dashboard:**
    - Open `http://localhost:3020` in your browser
    - The React frontend provides the full task and notes interface
-
 3. **Use the MCP server:**
    - Configure your MCP client to connect (see MCP Integration section)
    - The MCP server will automatically ensure the web server is running
@@ -228,7 +223,7 @@ Add this server to your MCP client configuration file:
 The web server exposes REST API endpoints that the MCP server uses:
 
 - `GET /api/tasks` - List all tasks
-- `POST /api/tasks` - Create new task  
+- `POST /api/tasks` - Create new task
 - `PUT /api/tasks/:id` - Update task
 - `DELETE /api/tasks/:id` - Delete task
 - `POST /api/tasks/reorder` - Reorder tasks

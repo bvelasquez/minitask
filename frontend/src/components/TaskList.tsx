@@ -116,12 +116,12 @@ export const TaskList: React.FC<TaskListProps> = ({
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Escape") {
+      setShowInput(false);
+      setNewTaskDescription("");
+    } else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       handleAddTask();
-    } else if (e.key === 'Escape') {
-      setShowInput(false);
-      setNewTaskDescription('');
     }
   };
 
@@ -132,14 +132,18 @@ export const TaskList: React.FC<TaskListProps> = ({
           <CheckSquare size={20} />
           Tasks ({totalCount - completedCount}/{totalCount})
         </h2>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           <button
-            className={`btn btn-small ${showCompleted ? 'btn-secondary' : 'btn-primary'}`}
+            className={`btn btn-small ${
+              showCompleted ? "btn-secondary" : "btn-primary"
+            }`}
             onClick={() => setShowCompleted(!showCompleted)}
-            title={showCompleted ? 'Hide completed tasks' : 'Show completed tasks'}
+            title={
+              showCompleted ? "Hide completed tasks" : "Show completed tasks"
+            }
           >
             {showCompleted ? <EyeOff size={16} /> : <Eye size={16} />}
-            {showCompleted ? 'Hide' : 'Show'} Completed
+            {showCompleted ? "Hide" : "Show"} Completed
           </button>
           <button
             className="btn btn-primary btn-small"
@@ -161,22 +165,25 @@ export const TaskList: React.FC<TaskListProps> = ({
         <div className="input-group fade-in">
           <textarea
             className="input task-textarea"
-            placeholder="Enter task description... (Shift+Enter for new line, Enter to save)"
+            placeholder="Enter task description... (Cmd/Ctrl+S to save, Escape to cancel)"
             value={newTaskDescription}
             onChange={(e) => setNewTaskDescription(e.target.value)}
             onKeyDown={handleKeyPress}
             autoFocus
             rows={12}
           />
-          <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-            <button className="btn btn-primary btn-small" onClick={handleAddTask}>
+          <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+            <button
+              className="btn btn-primary btn-small"
+              onClick={handleAddTask}
+            >
               Save
             </button>
             <button
               className="btn btn-secondary btn-small"
               onClick={() => {
                 setShowInput(false);
-                setNewTaskDescription('');
+                setNewTaskDescription("");
               }}
             >
               Cancel
@@ -194,14 +201,14 @@ export const TaskList: React.FC<TaskListProps> = ({
         <div className="empty-state">
           <ClipboardList size={48} />
           <p>
-            {searchQuery 
-              ? `No tasks found matching "${searchQuery}"` 
-              : 'No active tasks. All tasks are completed!'}
+            {searchQuery
+              ? `No tasks found matching "${searchQuery}"`
+              : "No active tasks. All tasks are completed!"}
           </p>
           {searchQuery && (
-            <button 
+            <button
               className="btn btn-secondary btn-small"
-              onClick={() => setSearchQuery('')}
+              onClick={() => setSearchQuery("")}
             >
               Clear search
             </button>
@@ -213,14 +220,19 @@ export const TaskList: React.FC<TaskListProps> = ({
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={filteredTasks} strategy={verticalListSortingStrategy}>
+          <SortableContext
+            items={filteredTasks}
+            strategy={verticalListSortingStrategy}
+          >
             {filteredTasks.map((task) => (
               <TaskItem
                 key={task.id}
                 task={task}
                 onToggle={(id, completed) => onUpdateTask(id, { completed })}
                 onDelete={onDeleteTask}
-                onUpdateDescription={(id, description) => onUpdateTask(id, { description })}
+                onUpdateDescription={(id, description) =>
+                  onUpdateTask(id, { description })
+                }
                 onCopyToNote={onAddNote}
                 onTaskClick={onTaskClick}
                 onMoveToTop={handleMoveToTop}
