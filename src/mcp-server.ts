@@ -1,3 +1,23 @@
+/**
+ * Task Notes MCP Server
+ * 
+ * CRITICAL CONTENT PRESERVATION RULES FOR LLM USAGE:
+ * ===================================================
+ * 
+ * 1. NEVER remove or completely overwrite existing task or note content
+ * 2. When updating tasks or notes, ALWAYS preserve existing content
+ * 3. Only append new information or make specific requested edits
+ * 4. Use append_to_note tool when adding content to existing notes
+ * 5. When using update_note or update_task, include ALL existing content plus new additions
+ * 6. If uncertain about existing content, retrieve it first before making updates
+ * 7. These rules apply unless the user explicitly requests deletion or complete replacement
+ * 
+ * PREFERRED WORKFLOW:
+ * - To add content to existing note: Use append_to_note tool
+ * - To modify existing content: First retrieve current content, then update with preserved content
+ * - Always err on the side of preservation rather than replacement
+ */
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -20,6 +40,7 @@ export class TaskNotesMCPServer {
       {
         name: "task-notes-server",
         version: "1.0.0",
+        description: "Task and Notes management server. CRITICAL CONTENT PRESERVATION RULES: 1) NEVER remove or completely overwrite existing task or note content unless explicitly requested by user, 2) When updating tasks/notes, ALWAYS preserve existing content and only append new information, 3) Use append_to_note tool for adding content to existing notes, 4) If uncertain about existing content, retrieve it first before making updates, 5) Always err on the side of preservation rather than replacement. These rules apply to ALL tool usage unless user explicitly requests deletion or complete replacement.",
       },
       {
         capabilities: {
@@ -116,7 +137,7 @@ export class TaskNotesMCPServer {
           {
             name: "update_task",
             description:
-              "Update an existing task. Use this to modify task descriptions, mark tasks as complete/incomplete, or change task order. Commonly used when user wants to check off a task, edit task text, or reorganize their list.",
+              "Update an existing task. IMPORTANT: When updating task descriptions, never remove or overwrite existing content unless explicitly requested. Always preserve existing task information and only append or make specific requested changes. Use this to modify task descriptions, mark tasks as complete/incomplete, or change task order. Commonly used when user wants to check off a task, add information to task text, or reorganize their list.",
             inputSchema: {
               type: "object",
               properties: {
@@ -200,7 +221,7 @@ export class TaskNotesMCPServer {
           {
             name: "update_note",
             description:
-              "Update the content of an existing note. Use this when the user wants to edit, modify, or add to an existing note. The entire note content will be replaced with the new content.",
+              "Update the content of an existing note. CRITICAL: NEVER remove or overwrite existing content unless explicitly requested by the user. When updating a note, always: 1) First retrieve the existing note content, 2) Preserve all existing content, 3) Only append new information or make specific requested edits while keeping the rest intact. Use this when the user wants to add to, extend, or make specific changes to an existing note. If the user wants to add information to a note, append it to the existing content with proper formatting (like adding a new section or paragraph).",
             inputSchema: {
               type: "object",
               properties: {
@@ -210,7 +231,7 @@ export class TaskNotesMCPServer {
                 },
                 content: {
                   type: "string",
-                  description: "The new note content in Markdown format",
+                  description: "The complete note content in Markdown format. MUST include all existing content plus any new additions or modifications. Never provide partial content that would overwrite existing information.",
                 },
               },
               required: ["id", "content"],
@@ -245,6 +266,29 @@ export class TaskNotesMCPServer {
                 },
               },
               required: ["query"],
+            },
+          },
+          {
+            name: "append_to_note",
+            description:
+              "Safely append new content to an existing note without risk of overwriting existing content. This tool automatically retrieves the current note content and appends the new content to it. Use this when you want to add information to a note while guaranteeing that existing content is preserved. This is the PREFERRED method for adding content to existing notes.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                id: {
+                  type: "number",
+                  description: "The ID of the note to append content to",
+                },
+                content: {
+                  type: "string",
+                  description: "The new content to append to the existing note (in Markdown format). This will be added after the existing content.",
+                },
+                separator: {
+                  type: "string",
+                  description: "Optional separator to add between existing and new content (default: '\\n\\n')",
+                },
+              },
+              required: ["id", "content"],
             },
           },
           {
@@ -457,6 +501,52 @@ export class TaskNotesMCPServer {
                   {
                     type: "text",
                     text: `Note with ID ${id} deleted successfully`,
+                  },
+                ],
+              };
+            } catch (error) {
+              if (error instanceof Error && error.message.includes("404")) {
+                return {
+                  content: [
+                    {
+                      type: "text",
+                      text: `Note with ID ${id} not found`,
+                    },
+                  ],
+                  isError: true,
+                };
+              }
+              throw error;
+            }
+          }
+
+          case "append_to_note": {
+            const { id, content, separator = "\\n\\n" } = args as { 
+              id: number; 
+              content: string; 
+              separator?: string;
+            };
+            try {
+              // First, get the existing note
+              const existingNote = await this.makeApiRequest("GET", `/notes/${id}`);
+              
+              // Append new content to existing content
+              const updatedContent = existingNote.content + separator + content;
+              
+              // Update the note with the combined content
+              const note = await this.makeApiRequest("PUT", `/notes/${id}`, {
+                content: updatedContent,
+              });
+              
+              return {
+                content: [
+                  {
+                    type: "text",
+                    text: `Content appended to note successfully: ${JSON.stringify(
+                      note,
+                      null,
+                      2,
+                    )}`,
                   },
                 ],
               };
