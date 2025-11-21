@@ -12,10 +12,11 @@ import { TaskRoute } from './components/TaskRoute';
 import { NoteRoute } from './components/NoteRoute';
 import { Instructions } from './components/Instructions';
 import { TagLegend } from './components/TagLegend';
+import { Dashboard } from './components/Dashboard';
 
-type TabType = 'tasks' | 'notes';
+type TabType = 'dashboard' | 'tasks' | 'notes';
 
-function Dashboard() {
+function MainApp() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [allNotes, setAllNotes] = useState<Note[]>([]);
@@ -25,7 +26,7 @@ function Dashboard() {
   // Load active tab from localStorage
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const saved = localStorage.getItem('app_activeTab');
-    return (saved === 'tasks' || saved === 'notes') ? saved : 'tasks';
+    return (saved === 'dashboard' || saved === 'tasks' || saved === 'notes') ? saved : 'dashboard';
   });
   
   const [expandedNote, setExpandedNote] = useState<Note | null>(null);
@@ -262,6 +263,12 @@ function Dashboard() {
       <div className="tabs-container">
         <div className="tabs-header">
           <button 
+            className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            Dashboard
+          </button>
+          <button 
             className={`tab-button ${activeTab === 'tasks' ? 'active' : ''}`}
             onClick={() => setActiveTab('tasks')}
           >
@@ -276,6 +283,7 @@ function Dashboard() {
         </div>
         
         <div className="tab-content">
+          {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'tasks' && (
             <TaskList
               tasks={tasks}
@@ -327,7 +335,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Dashboard />} />
+      <Route path="/" element={<MainApp />} />
       <Route path="/task/:id" element={<TaskRoute onAddNote={handleAddNote} />} />
       <Route path="/note/:id" element={<NoteRoute />} />
     </Routes>

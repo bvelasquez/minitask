@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Dashboard Configuration",
+  "description": "Configuration for the task dashboard tiles",
+  "type": "object",
+  "properties": {
+    "tiles": {
+      "type": "array",
+      "description": "Array of dashboard tiles",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the dashboard tile"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the dashboard tile"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL that the tile links to"
+          }
+        },
+        "required": ["title", "description", "url"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["tiles"],
+  "additionalProperties": false
+}

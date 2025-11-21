@@ -42,6 +42,16 @@ export class WebServer {
     this.app.use(cors());
     this.app.use(express.json());
     this.app.use(express.static(path.join(__dirname, "../public")));
+    
+    // Serve dashboard.yaml from project root
+    this.app.get('/dashboard.yaml', (req, res) => {
+      const dashboardPath = path.join(__dirname, '../dashboard.yaml');
+      res.sendFile(dashboardPath, (err) => {
+        if (err) {
+          res.status(404).send('Dashboard configuration not found');
+        }
+      });
+    });
   }
 
   private setupWebSocket(): void {

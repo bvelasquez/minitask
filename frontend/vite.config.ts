@@ -11,6 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": "http://localhost:3020",
+      "/dashboard.yaml": "http://localhost:3020",
       "/socket.io": {
         target: "http://localhost:3020",
         ws: true,

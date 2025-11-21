@@ -1,0 +1,27 @@
+# Sample Dashboard Configuration
+# Copy this file to dashboard.yaml and customize for your needs
+
+tiles:
+  - title: "Foundry"
+    description: "Use this to configure dynamic configuration values for the various environments"
+    url: "https://enhs-platform.dev.digitaledge.evernorth.com/configurations/config"
+  
+  - title: "GitHub"
+    description: "Source code repositories"
+    url: "https://github.com"
+  
+  - title: "AWS Console"
+    description: "Cloud infrastructure management"
+    url: "https://console.aws.amazon.com"
+  
+  - title: "Documentation"
+    description: "Project documentation and guides"
+    url: "https://docs.example.com"
+  
+  - title: "Monitoring"
+    description: "System health and metrics"
+    url: "https://monitoring.example.com"
+  
+  - title: "Slack"
+    description: "Team communication"
+    url: "https://slack.com"

@@ -50,3 +50,6 @@ test-mcp.js
 public/assets/
 lock-file
 *backup.ts
+
+# Dashboard configuration (user-specific)
+dashboard.yaml

@@ -1274,11 +1274,15 @@ body {
   pointer-events: auto;
   z-index: 10;
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 8px;
+  right: 8px;
   flex-wrap: wrap;
   align-items: center;
-  /* Removed max-width constraint that was squashing buttons */
+  background: var(--background);
+  padding: 4px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: calc(100% - 60px);
 }
 
 /* Action group and divider styles */
@@ -2405,6 +2409,114 @@ body {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
+/* Dashboard styles */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 24px;
+}
+
+.dashboard-tile {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-tile:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--shadow);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.tile-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.tile-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.tile-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  flex-grow: 1;
+}
+
+.tile-icon {
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  margin-left: 12px;
+  margin-top: 2px;
+}
+
+.dashboard-tile:hover .tile-icon {
+  color: var(--accent);
+  transform: translateX(2px);
+}
+
+.dashboard-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 24px;
+}
+
+.dashboard-error p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Responsive dashboard */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .dashboard-tile {
+    padding: 16px;
+  }
+  
+  .tile-content h3 {
+    font-size: 1rem;
+  }
+  
+  .tile-content p {
+    font-size: 0.85rem;
+  }
+}
+
 /* Responsive design for instructions */
 @media (max-width: 768px) {
   .instructions-body {
@@ -2429,7 +2541,8 @@ body {
 /* Task content positioning for action buttons */
 .task-content {
   position: relative !important;
-  padding-top: 32px !important; /* Space for action buttons */
+  padding-right: 120px !important;
+  padding-top: 8px !important;
 }
 /* Task expand/collapse functionality */
 .task-item.collapsed .task-description {

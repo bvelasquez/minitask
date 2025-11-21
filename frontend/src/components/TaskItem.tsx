@@ -374,6 +374,122 @@ Please help me work on this task. Start by getting the current task details, the
         }}
       />
       
+      {/* Action buttons positioned outside content flow */}
+      <div className="task-actions" onClick={handleActionsClick}>
+        {/* View Actions Group */}
+        <div className="action-group">
+          {isLongContent && (
+            <button
+              className="btn btn-secondary btn-small btn-icon"
+              onClick={handleExpandToggle}
+              title={isExpanded ? "Collapse task" : "Expand task"}
+            >
+              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+          )}
+          {onTaskClick && (
+            <button
+              className="btn btn-secondary btn-small btn-icon"
+              onClick={() => onTaskClick(task.id)}
+              title="Open task in new view"
+            >
+              <ExternalLink size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Organization Actions Group */}
+        {(onMoveToTop || onMoveToBottom) && (
+          <>
+            <div className="action-divider"></div>
+            <div className="action-group">
+              {onMoveToTop && (
+                <button
+                  className="btn btn-secondary btn-small btn-icon"
+                  onClick={() => onMoveToTop(task.id)}
+                  title="Move to top"
+                >
+                  <ArrowUp size={14} />
+                </button>
+              )}
+              {onMoveToBottom && (
+                <button
+                  className="btn btn-secondary btn-small btn-icon"
+                  onClick={() => onMoveToBottom(task.id)}
+                  title="Move to bottom"
+                >
+                  <ArrowDown size={14} />
+                </button>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Export Actions Group */}
+        <div className="action-divider"></div>
+        <div className="action-group">
+          <button
+            className="btn btn-accent btn-small btn-icon"
+            onClick={handleCopyToNote}
+            title="Copy task to notes"
+          >
+            <FileText size={14} />
+          </button>
+          <button
+            className="btn btn-secondary btn-small btn-icon"
+            onClick={handleCopyMarkdown}
+            title="Copy markdown to clipboard"
+          >
+            <Copy size={14} />
+          </button>
+          <button
+            className="btn btn-secondary btn-small btn-icon"
+            onClick={handleCopyLink}
+            title="Copy task link"
+          >
+            <Link size={14} />
+          </button>
+          <button
+            className="btn btn-secondary btn-small btn-icon"
+            onClick={handleDownloadMarkdown}
+            title="Download as markdown file"
+          >
+            <Download size={14} />
+          </button>
+        </div>
+
+        {/* AI Actions Group */}
+        <div className="action-divider"></div>
+        <div className="action-group">
+          <button
+            className="btn btn-accent btn-small btn-icon"
+            onClick={handleCreateAIPrompt}
+            title="Create AI prompt for this task"
+          >
+            <Bot size={14} />
+          </button>
+        </div>
+
+        {/* Primary Actions Group */}
+        <div className="action-divider"></div>
+        <div className="action-group">
+          <button
+            className="btn btn-primary btn-small btn-icon"
+            onClick={handleEditClick}
+            title="Edit task"
+          >
+            <Edit size={14} />
+          </button>
+          <button
+            className="btn btn-danger btn-small btn-icon"
+            onClick={handleDelete}
+            title="Delete task"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </div>
+      
       {/* Task content - NOT draggable */}
       <div className="task-content">
         {/* Task header */}
@@ -402,122 +518,6 @@ Please help me work on this task. Start by getting the current task details, the
               </div>
             </div>
           )}
-        </div>
-        
-        {/* Action buttons positioned at top-right inside content */}
-        <div className="task-actions" onClick={handleActionsClick}>
-          {/* View Actions Group */}
-          <div className="action-group">
-            {isLongContent && (
-              <button
-                className="btn btn-secondary btn-small btn-icon"
-                onClick={handleExpandToggle}
-                title={isExpanded ? "Collapse task" : "Expand task"}
-              >
-                {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              </button>
-            )}
-            {onTaskClick && (
-              <button
-                className="btn btn-secondary btn-small btn-icon"
-                onClick={() => onTaskClick(task.id)}
-                title="Open task in new view"
-              >
-                <ExternalLink size={14} />
-              </button>
-            )}
-          </div>
-
-          {/* Organization Actions Group */}
-          {(onMoveToTop || onMoveToBottom) && (
-            <>
-              <div className="action-divider"></div>
-              <div className="action-group">
-                {onMoveToTop && (
-                  <button
-                    className="btn btn-secondary btn-small btn-icon"
-                    onClick={() => onMoveToTop(task.id)}
-                    title="Move to top"
-                  >
-                    <ArrowUp size={14} />
-                  </button>
-                )}
-                {onMoveToBottom && (
-                  <button
-                    className="btn btn-secondary btn-small btn-icon"
-                    onClick={() => onMoveToBottom(task.id)}
-                    title="Move to bottom"
-                  >
-                    <ArrowDown size={14} />
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* Export Actions Group */}
-          <div className="action-divider"></div>
-          <div className="action-group">
-            <button
-              className="btn btn-accent btn-small btn-icon"
-              onClick={handleCopyToNote}
-              title="Copy task to notes"
-            >
-              <FileText size={14} />
-            </button>
-            <button
-              className="btn btn-secondary btn-small btn-icon"
-              onClick={handleCopyMarkdown}
-              title="Copy markdown to clipboard"
-            >
-              <Copy size={14} />
-            </button>
-            <button
-              className="btn btn-secondary btn-small btn-icon"
-              onClick={handleCopyLink}
-              title="Copy task link"
-            >
-              <Link size={14} />
-            </button>
-            <button
-              className="btn btn-secondary btn-small btn-icon"
-              onClick={handleDownloadMarkdown}
-              title="Download as markdown file"
-            >
-              <Download size={14} />
-            </button>
-          </div>
-
-          {/* AI Actions Group */}
-          <div className="action-divider"></div>
-          <div className="action-group">
-            <button
-              className="btn btn-accent btn-small btn-icon"
-              onClick={handleCreateAIPrompt}
-              title="Create AI prompt for this task"
-            >
-              <Bot size={14} />
-            </button>
-          </div>
-
-          {/* Primary Actions Group */}
-          <div className="action-divider"></div>
-          <div className="action-group">
-            <button
-              className="btn btn-primary btn-small btn-icon"
-              onClick={handleEditClick}
-              title="Edit task"
-            >
-              <Edit size={14} />
-            </button>
-            <button
-              className="btn btn-danger btn-small btn-icon"
-              onClick={handleDelete}
-              title="Delete task"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
         </div>
         
         {isEditing ? (
