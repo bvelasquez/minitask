@@ -530,7 +530,7 @@ Please help me work on this task. Start by getting the current task details, the
               onKeyDown={handleKeyDown}
               onClick={handleInputClick}
               onBlur={handleSaveEdit}
-              rows={Math.max(2, editValue.split('\n').length)}
+              rows={Math.max(5, Math.min(18, editValue.split('\n').length))}
             />
           </div>
         ) : (

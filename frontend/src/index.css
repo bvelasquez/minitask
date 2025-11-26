@@ -424,6 +424,7 @@ body {
   border-radius: 12px;
   margin-bottom: 12px;
   transition: all 0.2s ease;
+  max-width: 100%;
 }
 
 .task-item:hover {
@@ -1077,14 +1078,16 @@ body {
 /* Removed duplicate task-title styles - using the ones defined in the task header section above */
 
 .task-description {
-  font-size: 14px;
-  line-height: 1.5;
   color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 14px;
   margin-bottom: 4px;
   padding: 4px 8px;
   border-radius: 4px;
-  white-space: pre-wrap;
+  white-space: pre-line;
   word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 .task-description.completed {
@@ -1115,111 +1118,6 @@ body {
 }
 
 .task-description.completed .task-link:hover {
-  color: var(--text-secondary);
-  opacity: 0.9;
-}
-
-/* Task-specific markdown styles - IMPORTANT: These must override general markdown styles */
-.task-description .markdown-content {
-  line-height: 1.4 !important; /* Tighter line height for tasks */
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
-}
-
-/* Reduce margins for markdown elements within tasks - Override general styles */
-.task-description .markdown-content h1,
-.task-description .markdown-content h2,
-.task-description .markdown-content h3,
-.task-description .markdown-content h4,
-.task-description .markdown-content h5,
-.task-description .markdown-content h6 {
-  margin: 8px 0 4px 0 !important;
-  font-size: 1em !important;
-  font-weight: 600;
-  border-bottom: none !important;
-  padding-bottom: 0 !important;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.task-description .markdown-content p {
-  margin: 4px 0 !important;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.task-description .markdown-content ul,
-.task-description .markdown-content ol {
-  margin: 4px 0 !important;
-  padding-left: 16px !important;
-}
-
-.task-description .markdown-content li {
-  margin: 2px 0 !important;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.task-description .markdown-content blockquote {
-  margin: 4px 0 !important;
-  padding-left: 12px !important;
-  border-left-width: 3px !important;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-.task-description .markdown-content code {
-  font-size: 0.9em;
-  padding: 1px 4px !important;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: pre-wrap;
-}
-
-.task-description .markdown-content pre {
-  margin: 8px 0 !important;
-  padding: 8px !important;
-  font-size: 0.85em;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-/* Word wrapping for links and tables in tasks */
-.task-description .markdown-content a {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  word-break: break-all;
-}
-
-.task-description .markdown-content table {
-  table-layout: fixed;
-  width: 100%;
-}
-
-.task-description .markdown-content td,
-.task-description .markdown-content th {
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-
-/* Ensure completed tasks apply muted styling to all markdown content */
-.task-description.completed .markdown-content,
-.task-description.completed .markdown-content * {
-  color: var(--text-muted);
-  opacity: 0.8;
-}
-
-/* Keep links functional in completed tasks but muted */
-.task-description.completed .markdown-content a {
-  color: var(--text-muted);
-  opacity: 0.7;
-}
-
-.task-description.completed .markdown-content a:hover {
   color: var(--text-secondary);
   opacity: 0.9;
 }
@@ -2092,82 +1990,77 @@ body {
   font-weight: 600;
 }
 
-/* TASK-SPECIFIC MARKDOWN OVERRIDES - Must come after general markdown styles */
-.task-description .markdown-content {
-  line-height: 1.4 !important; /* Tighter line height for tasks */
+/* TASK-SPECIFIC MARKDOWN STYLES - Same as notes for better readability */
+.task-description h1,
+.task-description h2,
+.task-description h3,
+.task-description h4,
+.task-description h5,
+.task-description h6 {
+  margin: 16px 0 8px 0;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
-.task-description .markdown-content h1,
-.task-description .markdown-content h2,
-.task-description .markdown-content h3,
-.task-description .markdown-content h4,
-.task-description .markdown-content h5,
-.task-description .markdown-content h6 {
-  margin: 8px 0 4px 0 !important;
-  font-size: 1em !important;
-  border-bottom: none !important;
-  padding-bottom: 0 !important;
+.task-description p {
+  margin-bottom: 12px;
 }
 
-.task-description .markdown-content p {
-  margin: 4px 0 !important;
+.task-description code {
+  background: var(--bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 }
 
-/* AGGRESSIVE LIST SPACING RESET FOR TASKS */
-.task-description .markdown-content ul,
-.task-description .markdown-content ol {
-  margin: 2px 0 !important;
-  padding-left: 16px !important;
-  line-height: 1.2 !important;
+.task-description pre {
+  background: var(--bg-tertiary);
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 12px 0;
 }
 
-.task-description .markdown-content li {
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 1.2 !important;
+.task-description blockquote {
+  border-left: 4px solid var(--accent);
+  padding-left: 16px;
+  margin: 12px 0;
+  color: var(--text-secondary);
+  font-style: italic;
 }
 
-/* Extra specific overrides for stubborn list spacing */
-.task-description .markdown-content ul li,
-.task-description .markdown-content ol li {
-  margin: 0 !important;
-  margin-bottom: 0 !important;
-  margin-top: 0 !important;
-  padding: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  line-height: 1.2 !important;
+.task-description a {
+  color: var(--accent);
+  text-decoration: underline;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
-.task-description .markdown-content ul li p,
-.task-description .markdown-content ol li p {
-  margin: 0 !important;
-  padding: 0 !important;
-  line-height: 1.2 !important;
-  display: inline !important;
+.task-description a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
 }
 
-/* Reset any nested list spacing */
-.task-description .markdown-content ul ul,
-.task-description .markdown-content ul ol,
-.task-description .markdown-content ol ul,
-.task-description .markdown-content ol ol {
-  margin: 0 !important;
-  padding-left: 16px !important;
+.task-description a:visited {
+  color: var(--accent);
 }
 
-.task-description .markdown-content blockquote {
-  margin: 4px 0 !important;
-  padding-left: 12px !important;
+/* Ensure completed tasks apply muted styling */
+.task-description.completed,
+.task-description.completed * {
+  color: var(--text-muted);
+  opacity: 0.8;
 }
 
-.task-description .markdown-content pre {
-  margin: 8px 0 !important;
-  padding: 8px !important;
+.task-description.completed a {
+  color: var(--text-muted);
+  opacity: 0.7;
 }
 
-.task-description .markdown-content code {
-  padding: 1px 4px !important;
+.task-description.completed a:hover {
+  color: var(--text-secondary);
+  opacity: 0.9;
 }
 
 /* Instructions Component Styles */
@@ -2543,6 +2436,8 @@ body {
   position: relative !important;
   padding-right: 120px !important;
   padding-top: 8px !important;
+  flex: 1;
+  min-width: 0;
 }
 /* Task expand/collapse functionality */
 .task-item.collapsed .task-description {
