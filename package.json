@@ -6,6 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "npm run build:frontend && npm run build:backend",
+    "build:restart": "npm run build && npm run server:restart",
     "build:backend": "tsc",
     "build:frontend": "cd frontend && npm run build",
     "start": "node dist/index.js",
